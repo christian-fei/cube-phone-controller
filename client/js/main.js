@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	var HOST = '192.168.0.106';
-	var socket = io.connect('http://' + HOST);
+	socket = io.connect('http://' + HOST);
 	
 	var controller =  false
 	var $cube = $('.cube');
@@ -51,7 +51,7 @@ $(document).ready(function() {
 				absolute,
 				debug,
 				lastUpdate = Date.now(),
-				minInterval = 30;
+				minInterval = 10;
 			/*
 				*About* every minInterval ms (instead of every time the
 				orientation changes) send information about the device 
@@ -76,13 +76,26 @@ $(document).ready(function() {
 	function showRoomInput(callback){
 		var dialog = $( $('#room-input-dialog-template').html() );
 		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
-			if( e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
-				$('.room-input-dialog-wrapper').remove();
-				callback();
+			var roomAttempt = $('.room-input').val().trim();
+			if( roomAttempt && e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
+				
+				socket.emit('attemptControllerRoom', roomAttempt);
+				
+				socket.on('responseAttemptControllerRoom',function(successful){
+					if(successful){
+						$('.room-input-dialog-wrapper').remove();
+						callback();
+					}else{
+						alert('it seems like there is no such room available. try again. (you shall not pass)');
+					}
+				});
+
 			}
 		});
 		$('body').append(dialog);
 	}
+
+
 
 	/*
 	*	H   H OOOOO SSSSS TTTTT
@@ -95,10 +108,17 @@ $(document).ready(function() {
 		showRoomPassphrase(startMovingCube);
 
 		function startMovingCube(){
+			$('.passphrase-dialog-wrapper').remove();
 			$cube.show();
 
 			socket.on('controllerInstruction',function(orientation){
-				rotateCube( orientation.gamma , -orientation.beta );
+				if(controllerAvailable)
+					rotateCube( orientation.gamma , -orientation.beta );
+			});
+
+			socket.on('controllerLeft',function(){
+				controllerAvailable = false;
+				setupHost();
 			});
 		}
 	}
@@ -106,26 +126,40 @@ $(document).ready(function() {
 		var dialog = $( $('#passphrase-dialog-template').html() );
 		$('body').append(dialog);
 
-		socket.emit('gimmePassphrase');
-		socket.on('thereYouGo', function(passphrase){
+		socket.emit('canIHazPassphrasePlz?');
+		socket.on('passphraseFreshFromTheOven', function(passphrase){
 			dialog.find('.room-input').val(passphrase);
-		});	
+			notify('got passphrase ' + passphrase);
+		});
+		socket.on('controllerConnected',function(){
+			controllerAvailable = true;
+			callback();
+		});
 	}
 	
 	function rotateCube(x,y){
 		$cube.css('transform', 'rotateY('+x+'deg) rotateX('+y+'deg)');
 	}
 
-	socket.on('updateRoomParticipants',function(others){
-		var other = null,
-			i = 0;
-		var $others = $('.others');
-		$others.empty();
-
-		if(others){
-			while( other = others[i++] ){
-				$others.append('<li>' + other + '</li>');
-			}
-		}
+	$(window).on('beforeunload unload', function(){
+		socket.emit('windowUnloadControllerLeft');
+		//return true;
 	});
+
+	function notify(text){
+		var notificationID = Date.now();
+		var $notification = $('<li id="id' + notificationID + '" class="notification">' + text + '</li>').on('click',function(){
+			$(this).remove();
+		});
+
+		(function(notificationID){
+			setTimeout(function(){
+				//it could have been removed in the meantime
+				var n = $('#id' + notificationID);
+				if( n )
+					n.slideUp(1500,function(){$(this).remove()});
+			},5000);
+		})(notificationID);
+		$('.notification-bar').append( $notification );
+	}
 });
