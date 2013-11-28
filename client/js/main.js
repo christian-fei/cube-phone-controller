@@ -18,8 +18,20 @@ $(document).ready(function() {
 	});
 
 	function setupController(){
+		//no need to have a cube in the markup now
+		$('.cube-perspective').remove();
+
+		/*
+			once the user typed in the passphrase that he/she got from the host,
+			the callback will be executed and the controller starts to send
+			infos about the device orientation
+		*/
 		showRoomInput(startTrackingDeviceOrientation);
 
+		/*
+			starts tracking information about the device orientation and sends 
+			this information to the server which routes it to the host computer
+		*/
 		function startTrackingDeviceOrientation(){
 			var alpha,
 				beta,
@@ -46,7 +58,13 @@ $(document).ready(function() {
 		}
 	}
 	function showRoomInput(callback){
-		var dialog = $( $('room-input-dialog-template').html() );
+		var dialog = $( $('#room-input-dialog-template').html() );
+		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
+			if( e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
+				$('.room-input-dialog-wrapper').remove();
+				callback();
+			}
+		});
 		$('body').append(dialog);
 	}
 
