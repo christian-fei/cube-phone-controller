@@ -8,6 +8,8 @@ var http = require('http').createServer( httpHandler ),
 	httpHost = '10.130.164.155',
 	httpPort = 3000;
 
+var rooms = {};
+
 _l.setup({toConsole : true});
 _l.setup({off : true});
 
@@ -29,32 +31,78 @@ function httpHandler(req,res){
 		}
 		if(f)
 			res.write( f.toString() );
+		else
+			res.writeHead(404);
 	}
 	res.end();
 }
 
 io.sockets.on('connection', function (socket) {
-	_l.log( socket.id + ' connected' );
-	socket.on('subscribe',function(room,controller){
-		socket.join( room );
-
+	socket.on('canIHazPassphrasePlz?', function(){
+		var passphrase = getNewPassphrase();
+		socket.join( passphrase );
 		socket.store.data = {
-			"room" : room,
-			"controller" : controller
+			"room" : passphrase,
+			"controller" : false
 		};
+		socket.emit('passphraseFreshFromTheOven', passphrase);
+	});
 
-		io.sockets.in( room ).emit( 'updateRoomParticipants', io.sockets.manager.rooms[ '/'+room ] );
+	socket.on('attemptControllerRoom',function(roomAttempt){
+		if(roomAttempt)
+			roomAttempt = roomAttempt.toUpperCase();
+		var exists = rooms[roomAttempt] ? true : false;
+
+		if( exists ){
+			socket.join( roomAttempt );
+			socket.store.data = {
+				"room" : roomAttempt,
+				"controller" : true
+			};
+			socket.broadcast.to(roomAttempt).emit('controllerConnected');
+		}
+
+		socket.emit('responseAttemptControllerRoom', exists );
 	});
 	socket.on('controllerChanged', function(orientation){
-		//io.sockets.in( socket.store.data.room ).emit('controllerInstruction', orientation)
 		socket.broadcast.to( socket.store.data.room ).emit('controllerInstruction', orientation);
 	});
+
+	socket.on('windowUnloadControllerLeft',function(){
+		gracefulRoomLeaving(socket);
+	});
 	socket.on('disconnect',function(){
-		//console.log( socket.id );
-		var leftRoom = socket.store.data.room;
-		socket.leave( leftRoom );
-		
-		socket.broadcast.to( leftRoom ).emit('updateRoomParticipants', io.sockets.manager.rooms[ '/'+leftRoom ] );
-		//console.log( 'someone left room ' + leftRoom );
+		gracefulRoomLeaving(socket);
 	});
 });
+
+function gracefulRoomLeaving(socket){
+	console.log('socket left ' + socket.id);
+	var leftRoom = socket.store.data.room;
+	socket.leave( leftRoom );
+	console.log( socket.store.data );
+	if( socket.store.data.controller === true )
+		socket.broadcast.to( leftRoom ).emit('controllerLeft', io.sockets.manager.rooms[ '/'+leftRoom ] );
+}
+
+function getNewPassphrase(){
+	//a string of 5 uppercase characters
+	var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	function generatePassphrase(){
+		var p = '';
+		for(var i = 0; i < 3; i++){
+			p += alphabet[ Math.floor(Math.random() * alphabet.length)];
+		}
+		return p;
+	}
+	var passphrase = generatePassphrase();
+
+	while( rooms[passphrase] ){
+		passphrase = generatePassphrase();
+	}
+	rooms[ passphrase.toString() ] = true;
+
+	console.log( rooms );
+
+	return passphrase;
+}

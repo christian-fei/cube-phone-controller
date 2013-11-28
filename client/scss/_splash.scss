@@ -1,0 +1,80 @@
+.splash-screen, .room-input-dialog-wrapper, .passphrase-dialog-wrapper{
+	position: fixed;
+	/*extend the layer over the whole screen*/
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+	/*make sure it's 100% w/h*/
+	min-width: 100%;
+	min-height: 100%;
+	width: 100%;
+	height: 100%;	
+}
+
+.splash-screen{
+
+	background-color: $blue;
+	
+	/*splash screen is above all other elements*/
+	z-index: 999;
+
+	color:white;
+
+	h1{
+		font-size: 2em;
+		position: absolute;
+		top: -.1em;
+		width: 100%;
+		text-align: center;
+		transition: top .5s ease;
+	
+		&:hover{
+			top: .7em;
+		}
+
+		span{
+			position: relative;
+			animation: title-anim 2s ease-in-out infinite;
+			@for $i from 1 through 15{
+				&:nth-child(#{$i}){
+					animation-delay: .06s * $i;
+				}
+			}
+		}
+	}
+}
+@keyframes title-anim{
+	0%,100%{
+		top: 0;
+		left: 0;
+	}
+	50%{
+		top: 1em;
+		left: .1em;
+	}
+}
+	.choices{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-top: -$sizeChoices/2;
+		margin-left: -$sizeChoices/2;
+		width: $sizeChoices;
+		height: $sizeChoices;
+		line-height: $sizeChoices/2;
+	}
+		.choice{
+			display: block;
+			width: 100%;
+			text-align: center;
+			font-weight: bold;
+			cursor: pointer;
+			border: 2px solid white;
+			border-bottom: 1px solid white;
+
+			&:last-child{
+				border-top: 1px solid white;
+				border-bottom: 2px solid white;
+			}
+		}

@@ -1,0 +1,63 @@
+$size-cube: 200px;
+$depth: 300;
+*,*:before,*:after{margin: 0;padding: 0;box-sizing:border-box;}
+
+.cube-perspective{
+  perspective:2000;
+  position:absolute;
+  top: 50%;
+  left:50%;
+  transform: translateX( -$size-cube/2 ) translateY( -$size-cube/2 );
+  
+  /*needs to have the same width as the actual cube
+    to apply the perspective correctly
+  */
+  width: $size-cube;
+  height: $size-cube;
+}
+.cube,.face{  
+  position:absolute;
+}
+.cube{
+  display: none;
+  transform-style: preserve-3d;
+  transform-origin:center center;
+  width: 100%;
+  height: 100%;
+  border:1px solid lightgrey;
+
+  transition: all 0.1s ease;
+}
+
+.face{
+  border: 1px solid black;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: .3;  
+
+  /*center the text*/
+  text-align: center;
+  line-height: $size-cube;
+  span{
+    font-size: 7em;
+  }
+  &:hover{
+    opacity: .5;
+  }
+}
+.face:nth-child(2){
+  transform: rotateX(-90deg) translateZ(-$size-cube/2) translateY($size-cube/2);
+}
+.face:nth-child(3){
+  transform: rotateX(-90deg) translateZ($size-cube/2) translateY($size-cube/2);
+}
+.face:nth-child(4){
+  transform: rotateY(-90deg) translateX(-$size-cube/2) translateZ($size-cube/2);
+}
+.face:nth-child(5){
+  transform: rotateY(-90deg) translateX(-$size-cube/2) translateZ(-$size-cube/2);
+}
+.face:nth-child(6){
+  transform: rotateY(180deg) translateZ($size-cube);
+}

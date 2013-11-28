@@ -12,16 +12,63 @@
 		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	</head>
 	<body>
-		<label for="inputRoom">Room?</label><input type="text" id="inputRoom"/>
-		<br/>
-		<label for="inputController">Controller?</label><input type="checkbox" id="inputController"/>
-		<br/>
-		<input type="submit" value="..connect.." id="buttonConnect" disabled="disabled"/>
-		
-		<ul class="others"></ul>
+		<script type='text/x-template' id='room-input-dialog-template'>
+			<aside class="room-input-dialog-wrapper">
+				<div class="room-input-dialog">
+					<input type="text" class="room-input" placeholder="host passphrase"/>
+					<button class="room-confirm">OK</button>
+				</div>
+			</aside>
+		</script>
+		<script type='text/x-template' id='passphrase-dialog-template'>
+			<aside class="passphrase-dialog-wrapper">
+				<div class="passphrase-dialog">
+					<input type="text" class="room-input" placeholder="" readonly/>
+				</div>
+			</aside>
+		</script>
 
-		<pre class="debug"></pre>
+		<ul class="menu">
+			<li class="toggler">
+				<ul>
+					<li class="item">
+						<a href="/">home</a>
+					</li>
+					<li class="item">
+						<a href="/about">about</a>
+					</li>
+					<li class="item">
+						<a href="/source">source code</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
 
+		<ul class="notification-bar"></ul>
+
+		<div class="splash-screen">
+			<h1>
+				<span>c</span>
+				<span>u</span>
+				<span>b</span>
+				<span>e</span>
+				<span>&nbsp;</span>
+				<span>c</span>
+				<span>o</span>
+				<span>n</span>
+				<span>t</span>
+				<span>r</span>
+				<span>o</span>
+				<span>l</span>
+				<span>l</span>
+				<span>e</span>
+				<span>r</span>
+			</h1>
+			<div class="choices">
+				<div class="choice" data-choice="host">HOST</div>
+				<div class="choice" data-choice="controller">CONTROLLER</div>
+			</div>
+		</div>
 
 		<div class='cube-perspective'>
 			<div class='cube'>

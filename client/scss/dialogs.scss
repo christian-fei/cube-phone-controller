@@ -1,10 +1,13 @@
-.room-input-dialog-wrapper{
-	@extend %splash-wrapper;
-
-	background-color: #0087FF;
+.room-input-dialog-wrapper, .passphrase-dialog-wrapper{
 	color:white;
 }
-	.room-input-dialog{
+.room-input-dialog-wrapper{
+	background-color: $green;
+}
+.passphrase-dialog-wrapper{
+	background-color: $yellow;
+}
+	.room-input-dialog, .passphrase-dialog{
 		$sizeDialog: 20em;
 		position: absolute;
 		top: 50%;

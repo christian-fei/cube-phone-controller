@@ -1,0 +1,52 @@
+.menu{
+	position:fixed;
+	top:0;
+	left:0;
+	background: #222;
+	z-index: 2000;
+	color:white;
+
+	&:hover{
+		width: 10em;
+	}
+
+	a{
+		color:white;
+		text-decoration: none;
+		display: block;
+		width: 95%;
+
+		transition: padding .3s ease;
+
+		&:hover{
+			color: #aaa;
+			padding-left: .5em;
+		}
+	}
+
+	li{
+		display: block;
+	}
+
+	.toggler{
+		padding:1em;
+
+		&:after{
+			font-size: 1.5em;
+			content:'>>';
+		}
+	}
+
+	.toggler:hover{
+		&:after{
+			content:'';
+		}
+		.item{
+			display: block;
+		}
+	} 
+
+	.item{
+		display: none;
+	}
+}

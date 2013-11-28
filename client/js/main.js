@@ -2,7 +2,7 @@ $(document).ready(function() {
 	var HOST = '192.168.0.106';
 	socket = io.connect('http://' + HOST);
 	
-	var controller =  false
+	var room = '';
 	var $cube = $('.cube');
 
 	/*
@@ -45,6 +45,7 @@ $(document).ready(function() {
 			this information to the server which routes it to the host computer
 		*/
 		function startTrackingDeviceOrientation(){
+			notify('controller for instance ' + room + ' set up successfully');
 			var alpha,
 				beta,
 				gamma,
@@ -78,15 +79,20 @@ $(document).ready(function() {
 		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
 			var roomAttempt = $('.room-input').val().trim();
 			if( roomAttempt && e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
-				
+				/*
+					Follow the protocol:
+						1) check if room exists (ask server)
+						2) read the response and act accordingly
+				*/
 				socket.emit('attemptControllerRoom', roomAttempt);
 				
 				socket.on('responseAttemptControllerRoom',function(successful){
 					if(successful){
+						room = roomAttempt.toUpperCase();
 						$('.room-input-dialog-wrapper').remove();
 						callback();
 					}else{
-						alert('it seems like there is no such room available. try again. (you shall not pass)');
+						notify('it seems like you mistyped the passphrase. try again.');
 					}
 				});
 
@@ -97,6 +103,8 @@ $(document).ready(function() {
 
 
 
+
+
 	/*
 	*	H   H OOOOO SSSSS TTTTT
 	*	H   H O   O S       T
@@ -104,10 +112,16 @@ $(document).ready(function() {
 	*	H   H O   O     S   T
 	*	H   H OOOOO SSSSS   T
 	*/
+	function resetHostListeners(){
+		socket.removeListener('controllerConnected');
+		socket.removeListener('passphraseFreshFromTheOven');
+		socket.removeListener('controllerInstruction');
+	}
 	function setupHost(){
 		showRoomPassphrase(startMovingCube);
 
 		function startMovingCube(){
+			notify('controller successfully connected to instance ' + room);
 			$('.passphrase-dialog-wrapper').remove();
 			$cube.show();
 
@@ -128,11 +142,13 @@ $(document).ready(function() {
 
 		socket.emit('canIHazPassphrasePlz?');
 		socket.on('passphraseFreshFromTheOven', function(passphrase){
+			room = passphrase;
 			dialog.find('.room-input').val(passphrase);
-			notify('got passphrase ' + passphrase);
+			notify('connect your smartphone as a controller');
 		});
 		socket.on('controllerConnected',function(){
 			controllerAvailable = true;
+			resetHostListeners();
 			callback();
 		});
 	}
@@ -157,8 +173,8 @@ $(document).ready(function() {
 				//it could have been removed in the meantime
 				var n = $('#id' + notificationID);
 				if( n )
-					n.slideUp(1500,function(){$(this).remove()});
-			},5000);
+					n.slideUp(1200,function(){$(this).remove()});
+			},7000);
 		})(notificationID);
 		$('.notification-bar').append( $notification );
 	}
