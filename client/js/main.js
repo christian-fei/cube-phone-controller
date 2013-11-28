@@ -84,6 +84,13 @@ $(document).ready(function() {
 		$('body').append(dialog);
 	}
 
+	/*
+	*	H   H OOOOO SSSSS TTTTT
+	*	H   H O   O S       T
+	*	HHHHH O   O SSSSS   T
+	*	H   H O   O     S   T
+	*	H   H OOOOO SSSSS   T
+	*/
 	function setupHost(){
 		$cube.show();
 
