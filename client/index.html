@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width">
+		<link rel="stylesheet" href="/css/main.css">
+		<script src="/client/js/prefixfree.js"></script>
+		<script src="/client/js/jquery.js"></script>
+		<script src="/client/js/cube.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			$(document).ready(function() {
+
+				var cube = document.querySelector('.cube'),
+				cubePerspective = document.querySelector('.cube-perspective');
+
+				Element.prototype.prefixedStyle = function(p,style){
+					var prefixes = ['webkit','moz','o'],
+					i = 0;
+					p = p.charAt(0).toUpperCase() + p.slice(1);
+					while (prefix = prefixes[i++]){
+						this.style[prefix + p] = style;
+					}
+				};
+
+				function rotateCube(x,y){
+					cube.prefixedStyle('transform','rotateY('+x+'deg) rotateX('+y+'deg)');
+				}
+				var socket = io.connect('http://10.130.164.155');
+
+				//stateVariables
+				var controller =  false,
+					roomid =  '';
+
+				$('#inputRoom').on('keyup',function(e){
+					roomid = $(this).val();
+
+					if( roomid )
+						$('#buttonConnect').removeAttr('disabled');
+					else
+						$('#buttonConnect').attr('disabled', 'disabled');
+						
+				});
+				$('#inputController').on('change',function(e){
+					controller = e.target.checked;
+				});
+
+				$('#buttonConnect').on('click',function(){
+					if( $('#inputRoom').val() ){
+						$('#inputRoom').attr('disabled', 'disabled');
+						$('#inputController').attr('disabled', 'disabled');
+						
+						socket.emit('subscribe', roomid, controller);
+
+
+						//CONTROLLER
+						//CONTROLLER
+						//CONTROLLER
+						//CONTROLLER
+						if( controller ){
+							var alpha,beta,gamma,absolute,debug,lastUpdate = Date.now(),minInterval = 30;
+
+							window.addEventListener("deviceorientation",function(event) {
+								if( Date.now() - minInterval > lastUpdate ){
+									alpha = event.alpha;
+									beta = event.beta;
+									gamma = event.gamma;
+
+									socket.emit('deviceOrientationChanged',{
+										alpha : alpha,
+										beta : beta,
+										gamma : gamma
+									});
+
+									debug = 'alpha\t: ' + alpha + '\n' +
+										'beta\t: ' + beta + '\n' +
+										'gamma\t: ' + gamma + '\n';
+									$('.debug').text( debug);
+								}
+								lastUpdate = Date.now();
+							});
+
+							$(document).key
+						}
+						//CONTROLLED PC
+						//CONTROLLED PC
+						//CONTROLLED PC
+						//CONTROLLED PC
+						else{
+							$('.cube').show();
+
+							socket.on('deviceOrientationTriggered',function(orientation){
+								debug = 'alpha\t: ' + orientation.alpha + '\n' +
+									'beta\t: ' + orientation.beta + '\n' +
+									'gamma\t: ' + orientation.gamma + '\n';
+								$('.debug').text( debug);
+
+								rotateCube( orientation.gamma, -orientation.beta );
+
+							});
+						}
+					}
+				});
+
+				socket.on('updateRoomParticipants',function(others){
+					var other = null,
+						i = 0;
+					var $others = $('.others');
+					$others.empty();
+
+					if(others){
+						while( other = others[i++] ){
+							$others.append('<li>' + other + '</li>');
+						}
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<label for="inputRoom">Room?</label><input type="text" id="inputRoom"/>
+		<br/>
+		<label for="inputController">Controller?</label><input type="checkbox" id="inputController"/>
+		<br/>
+		<input type="submit" value="..connect.." id="buttonConnect" disabled="disabled"/>
+		
+		<ul class="others"></ul>
+
+		<pre class="debug"></pre>
+
+
+		<div class='cube-perspective'>
+			<div class='cube'>
+				<div class='face'>
+					<span>
+						1
+					</span>
+				</div>
+				<div class='face'>
+					<span>
+						2
+					</span>
+				</div>
+				<div class='face'>
+					<span>
+						3
+					</span>
+				</div>
+				<div class='face'>
+					<span>
+						4
+					</span>
+				</div>
+				<div class='face'>
+					<span>
+						5
+					</span>
+				</div>
+				<div class='face'>
+					<span>
+						6
+					</span>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
