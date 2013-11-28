@@ -92,11 +92,24 @@ $(document).ready(function() {
 	*	H   H OOOOO SSSSS   T
 	*/
 	function setupHost(){
-		$cube.show();
+		showRoomPassphrase(startMovingCube);
 
-		socket.on('controllerInstruction',function(orientation){
-			rotateCube( orientation.gamma , -orientation.beta );
-		});
+		function startMovingCube(){
+			$cube.show();
+
+			socket.on('controllerInstruction',function(orientation){
+				rotateCube( orientation.gamma , -orientation.beta );
+			});
+		}
+	}
+	function showRoomPassphrase(callback){
+		var dialog = $( $('#passphrase-dialog-template').html() );
+		$('body').append(dialog);
+
+		socket.emit('gimmePassphrase');
+		socket.on('thereYouGo', function(passphrase){
+			dialog.find('.room-input').val(passphrase);
+		});	
 	}
 	
 	function rotateCube(x,y){
