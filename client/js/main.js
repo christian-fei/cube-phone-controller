@@ -17,8 +17,20 @@ $(document).ready(function() {
 		}
 	});
 
+
+
+	/*
+	*	CCCCC OOOOO N   N TTTTT RRRRR OOOOO L     L     EEEEE RRRRR
+	*	C     O   O NN  N   T   R   R O   O L     L     E     R   R
+	*	C     O   O N N N   T   RRRRR O   O L     L     EEEE  RRRRR
+	*	C     O   O N  NN   T   R  R  O   O L     L     E     R  R
+	*	CCCCC OOOOO N   N   T   R   R OOOOO LLLLL LLLLL EEEEE R   R
+	*/
 	function setupController(){
-		//no need to have a cube in the markup now
+		/*
+			no need to have a cube in the markup now, 
+			because we are the controller in this case
+		*/
 		$('.cube-perspective').remove();
 
 		/*
@@ -39,8 +51,12 @@ $(document).ready(function() {
 				absolute,
 				debug,
 				lastUpdate = Date.now(),
-				minInterval = 20;
-
+				minInterval = 30;
+			/*
+				*About* every minInterval ms (instead of every time the
+				orientation changes) send information about the device 
+				orientation to the server
+			*/
 			window.addEventListener("deviceorientation",function(event) {
 				if( Date.now() - minInterval > lastUpdate ){
 					alpha = event.alpha;
