@@ -1,8 +1,8 @@
 # Require any additional compass plugins here.
 
 # Set this to the root of your project when deployed:
-css_dir = "css"
-sass_dir = "scss"
+css_dir = "client/css"
+sass_dir = "client/scss"
 
 # You can select your preferred output style here (can be overridden via the command line):
 output_style = :compressed
