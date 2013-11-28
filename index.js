@@ -7,7 +7,7 @@ var http = require('http').createServer( httpHandler ),
 	httpHost = '10.130.164.155',
 	httpPort = 3000;
 
-http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST '10.130.164.155' );
+http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || '10.130.164.155' );
 
 function httpHandler(req,res){
 
