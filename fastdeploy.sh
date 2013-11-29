@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo '====stopping opentalk.me===='
+echo '====stopping cube-phone-controller===='
 forever stop /root/nodestuff/cube-phone-controller/index.js
 echo '====checking out===='
 git checkout .
