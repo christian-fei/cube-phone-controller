@@ -3,7 +3,6 @@
  * @author Christian Fei
  * kudos to @toddmotto for the base
  */
-
 'use strict';
 module.exports = function ( grunt ) {
     pkg: grunt.file.readJSON('package.json'),
