@@ -4,12 +4,14 @@
 var http = require('http').createServer( httpHandler ),
 	io = require('socket.io').listen( http, { log: false } ),
 	fs = require('fs'),
+	mime = require('mime'),
 	httpHost = '192.168.0.106', //my static IP in my home network
 	httpPort = 3000;
 
 var rooms = {};
 
 http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || httpHost );
+
 
 /*
 	H   H TTTTT TTTTT PPPPP    SSSSS EEEEE RRRRR V   V EEEEE RRRRR
@@ -35,8 +37,17 @@ function httpHandler(req,res){
 			f = fs.readFileSync( __dirname + req.url , 'utf8');
 		}catch(e){
 		}
-		if(f)
+
+		if(f){
+			/*
+			serve with the right mime type
+			*/
+			var type = mime.lookup(req.url.substring(1));
+			res.writeHead(200, {
+				"Content-Type": type
+			});
 			res.write( f.toString() );
+		}
 		else
 			res.writeHead(404);
 	}
@@ -44,7 +55,15 @@ function httpHandler(req,res){
 }
 
 
+/*
+	SSSSS OOOOO CCCCC K   K EEEEE TTTTT       I OOOOO
+	S     O   O C     K  K  E       T         I O   O
+	SSSSS O   O C     KKK   EEEE    T         I O   O
+	    S O   O C     K  K  E       T    ..   I O   O
+	SSSSS OOOOO CCCCC K   K EEEEE   T    ..   I OOOOO
+*/
 io.sockets.on('connection', function (socket) {
+
 	socket.on('canIHazPassphrasePlz?', function(){
 		var passphrase = getNewPassphrase();
 		socket.join( passphrase );
@@ -71,13 +90,15 @@ io.sockets.on('connection', function (socket) {
 
 		socket.emit('responseAttemptControllerRoom', exists );
 	});
+
 	socket.on('controllerChanged', function(orientation){
 		socket.broadcast.to( socket.store.data.room ).emit('controllerInstruction', orientation);
 	});
 
-	socket.on('windowUnloadControllerLeft',function(){
+	socket.on('windowUnloadSocketLeft',function(){
 		gracefulRoomLeaving(socket);
 	});
+
 	socket.on('disconnect',function(){
 		gracefulRoomLeaving(socket);
 	});

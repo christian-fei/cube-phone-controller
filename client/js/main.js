@@ -1,9 +1,19 @@
-$(document).ready(function() {
-	var HOST = '37.139.20.20';
-
+var HOST = '192.168.0.106',
 	socket = io.connect('http://' + HOST);
+
+
+var room = '';
+
+
+/*
+variables for the controller
+*/
+var alpha,beta,gamma,absolute,debug,
+		lastUpdate = Date.now(),
+		minInterval = 10;
+
+$(document).ready(function() {
 	
-	var room = '';
 	var $cube = $('.cube'),
 		$statusText = $('.status-text'),
 		$debugText = $('.debug-text'),
@@ -46,9 +56,6 @@ $(document).ready(function() {
 	*	C     O   O N  NN   T   R  R  O   O L     L     E     R  R
 	*	CCCCC OOOOO N   N   T   R   R OOOOO LLLLL LLLLL EEEEE R   R
 	*/
-	var alpha,beta,gamma,absolute,debug,
-		lastUpdate = Date.now(),
-		minInterval = 10;
 	function handleDO(event){
 		if( Date.now() - minInterval > lastUpdate ){
 			alpha = event.alpha;
@@ -173,11 +180,24 @@ $(document).ready(function() {
 		$cube.css('transform', 'rotateY('+x+'deg) rotateX('+y+'deg)');
 	}
 
+	/*
+	doesn't work quite well, should send an event to the server, 
+	because socket.io and Android have problems when disconnecting
+	*/
 	$(window).on('beforeunload unload', function(){
-		socket.emit('windowUnloadControllerLeft');
-		//return true;
+		socket.emit('windowUnloadSocketLeft');
 	});
 
+
+
+
+	/*
+		N   N OOOOO TTTTT I FFFFF I CCCCC AAAAA TTTTT I OOOOO N   N SSSSS
+      NN  N O   O   T   I F     I C     A   A   T   I O   O NN  N S
+      N N N O   O   T   I FFFF  I C     AAAAA   T   I O   O N N N SSSSS
+      N  NN O   O   T   I F     I C     A   A   T   I O   O N  NN     S
+      N   N OOOOO   T   I F     I CCCCC A   A   T   I OOOOO N   N SSSSS
+	*/
 	var lastNotificationText='';
 	function notify(text){
 		//to avoid same notifications over and over again
@@ -190,14 +210,21 @@ $(document).ready(function() {
 			$(this).remove();
 		});
 
+		$('.notification-bar').append( $notification );
+
+		/*
+		dismiss the notification after x seconds
+		*/
 		(function(notificationID){
 			setTimeout(function(){
 				//it could have been removed in the meantime
 				var n = $('#id' + notificationID);
 				if( n )
 					n.slideUp(1000,function(){$(this).remove()});
+				//reset the text when the notification has been dismissed
+				lastNotificationText = '';
 			},5000);
 		})(notificationID);
-		$('.notification-bar').append( $notification );
+		
 	}
 });
