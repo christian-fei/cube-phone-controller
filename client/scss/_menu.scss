@@ -6,7 +6,10 @@
 	z-index: 2000;
 	color:white;
 
+	opacity: .45;
+
 	&:hover{
+		opacity: 1;
 		width: 10em;
 	}
 
