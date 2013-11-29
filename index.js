@@ -4,21 +4,32 @@
 var http = require('http').createServer( httpHandler ),
 	io = require('socket.io').listen( http, { log: false } ),
 	fs = require('fs'),
-	httpHost = '10.130.164.155',
+	httpHost = '192.168.0.106', //my static IP in my home network
 	httpPort = 3000;
 
 var rooms = {};
 
-http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || '10.130.164.155' );
+http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || httpHost );
 
+/*
+	H   H TTTTT TTTTT PPPPP    SSSSS EEEEE RRRRR V   V EEEEE RRRRR
+	H   H   T     T   P   P    S     E     R   R V   V E     R   R
+	HHHHH   T     T   PPPPP    SSSSS EEEE  RRRRR  V V  EEEE  RRRRR
+	H   H   T     T   P            S E     R  R   V V  E     R  R
+	H   H   T     T   P        SSSSS EEEEE R   R   V   EEEEE R   R
+*/
 function httpHandler(req,res){
 	if( req.url === '/' ){
 		res.writeHead(200, {
 			'Content-Type': 'text/html'
 		});
 		res.write( fs.readFileSync( __dirname + '/client/index.html' , 'utf8') );
-	}
-	else{
+	}else if(req.url === '/about' || req.url === '/source'){
+		res.writeHead(200, {
+			'Content-Type': 'text/html'
+		});
+		res.write( fs.readFileSync( __dirname + '/client' + req.url + '.html' , 'utf8') );
+	}else{
 		var f;
 		try{
 			f = fs.readFileSync( __dirname + req.url , 'utf8');
@@ -31,6 +42,7 @@ function httpHandler(req,res){
 	}
 	res.end();
 }
+
 
 io.sockets.on('connection', function (socket) {
 	socket.on('canIHazPassphrasePlz?', function(){
