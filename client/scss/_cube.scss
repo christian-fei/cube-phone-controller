@@ -34,7 +34,7 @@ $depth: 300;
   width: 100%;
   height: 100%;
   background-color: #fff;
-  opacity: .3;  
+  opacity: .8;  
 
   /*center the text*/
   text-align: center;
@@ -43,7 +43,7 @@ $depth: 300;
     font-size: 7em;
   }
   &:hover{
-    opacity: .5;
+    opacity: 1;
   }
 }
 .face:nth-child(2){
