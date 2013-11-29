@@ -4,19 +4,14 @@
 var http = require('http').createServer( httpHandler ),
 	io = require('socket.io').listen( http, { log: false } ),
 	fs = require('fs'),
-	_l = require('./logger.js'),
 	httpHost = '10.130.164.155',
 	httpPort = 3000;
 
 var rooms = {};
 
-_l.setup({toConsole : true});
-_l.setup({off : true});
-
 http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || '10.130.164.155' );
 
 function httpHandler(req,res){
-	_l.log( req.url );
 	if( req.url === '/' ){
 		res.writeHead(200, {
 			'Content-Type': 'text/html'
