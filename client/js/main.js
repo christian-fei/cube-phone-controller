@@ -3,20 +3,39 @@ $(document).ready(function() {
 	socket = io.connect('http://' + HOST);
 	
 	var room = '';
-	var $cube = $('.cube');
+	var $cube = $('.cube'),
+		$statusText = $('.status-text'),
+		$debugText = $('.debug-text'),
+		$instance = $('.instance');
 
 	/*
 		UI handlers
 	*/
-	$('.choice').on('click',function(){
-		$('.splash-screen').remove();
-		if( $(this).data('choice') === 'controller' ){
-			setupController();
-		}else{
-			setupHost();
+	$('.choice, .menu .item a').on('click',function(e){
+		if( $(this).data('choice') ){
+			if( $('.splash-screen') )
+				$('.splash-screen').remove();
+			console.log( $(this).data('choice') );
+			resetListeners();
+			e.preventDefault();
+			if( $(this).data('choice') === 'controller' ){
+				setupController();
+			}else{
+				setupHost();
+			}
 		}
 	});
 
+
+	function resetListeners(){
+		window.removeEventListener('deviceorientation',handleDO);
+		socket.removeListener('controllerConnected');
+		socket.removeListener('controllerLeft');
+		socket.removeListener('passphraseFreshFromTheOven');
+		socket.removeListener('controllerInstruction');
+		socket.removeListener('responseAttemptControllerRoom');
+
+	}
 
 
 	/*
@@ -26,12 +45,27 @@ $(document).ready(function() {
 	*	C     O   O N  NN   T   R  R  O   O L     L     E     R  R
 	*	CCCCC OOOOO N   N   T   R   R OOOOO LLLLL LLLLL EEEEE R   R
 	*/
+	var alpha,beta,gamma,absolute,debug,
+		lastUpdate = Date.now(),
+		minInterval = 10;
+	function handleDO(event){
+		if( Date.now() - minInterval > lastUpdate ){
+			alpha = event.alpha;
+			beta = event.beta;
+			gamma = event.gamma;
+
+			socket.emit('controllerChanged',{
+				alpha : alpha,
+				beta : beta,
+				gamma : gamma
+			});
+			$debugText.html('x ' + gamma + '<br/>y' + beta);
+		}
+		lastUpdate = Date.now();
+	}
 	function setupController(){
-		/*
-			no need to have a cube in the markup now, 
-			because we are the controller in this case
-		*/
-		$('.cube-perspective').remove();
+
+		$('.cube-perspective').hide();
 
 		/*
 			once the user typed in the passphrase that he/she got from the host,
@@ -45,33 +79,15 @@ $(document).ready(function() {
 			this information to the server which routes it to the host computer
 		*/
 		function startTrackingDeviceOrientation(){
-			notify('controller for instance ' + room + ' set up successfully');
-			var alpha,
-				beta,
-				gamma,
-				absolute,
-				debug,
-				lastUpdate = Date.now(),
-				minInterval = 10;
+			notify('controller for instance ' + room + ' set up');
+			$statusText.html('<h3>controlling instance ' + room + '</h3>');
+			$instance.html(room);
 			/*
 				*About* every minInterval ms (instead of every time the
 				orientation changes) send information about the device 
 				orientation to the server
 			*/
-			window.addEventListener("deviceorientation",function(event) {
-				if( Date.now() - minInterval > lastUpdate ){
-					alpha = event.alpha;
-					beta = event.beta;
-					gamma = event.gamma;
-
-					socket.emit('controllerChanged',{
-						alpha : alpha,
-						beta : beta,
-						gamma : gamma
-					});
-				}
-				lastUpdate = Date.now();
-			});
+			window.addEventListener("deviceorientation",handleDO);
 		}
 	}
 	function showRoomInput(callback){
@@ -112,26 +128,25 @@ $(document).ready(function() {
 	*	H   H O   O     S   T
 	*	H   H OOOOO SSSSS   T
 	*/
-	function resetHostListeners(){
-		socket.removeListener('controllerConnected');
-		socket.removeListener('passphraseFreshFromTheOven');
-		socket.removeListener('controllerInstruction');
-	}
 	function setupHost(){
 		showRoomPassphrase(startMovingCube);
 
 		function startMovingCube(){
-			notify('controller successfully connected to instance ' + room);
+			notify('controller connected to instance ' + room);
+			$instance.html(room);
 			$('.passphrase-dialog-wrapper').remove();
 			$cube.show();
 
 			socket.on('controllerInstruction',function(orientation){
-				if(controllerAvailable)
+				if(controllerAvailable){
+					$debugText.html('x ' + orientation.gamma + '<br/>y' + orientation.beta);
 					rotateCube( orientation.gamma , -orientation.beta );
+				}
 			});
 
 			socket.on('controllerLeft',function(){
 				controllerAvailable = false;
+				$statusText.html('controller for instance ' + room + ' left');
 				setupHost();
 			});
 		}
@@ -148,7 +163,7 @@ $(document).ready(function() {
 		});
 		socket.on('controllerConnected',function(){
 			controllerAvailable = true;
-			resetHostListeners();
+			resetListeners();
 			callback();
 		});
 	}
@@ -162,7 +177,13 @@ $(document).ready(function() {
 		//return true;
 	});
 
+	var lastNotificationText='';
 	function notify(text){
+		//to avoid same notifications over and over again
+		if(text === lastNotificationText){
+			return;
+		}
+		lastNotificationText = text;
 		var notificationID = Date.now();
 		var $notification = $('<li id="id' + notificationID + '" class="notification">' + text + '</li>').on('click',function(){
 			$(this).remove();
@@ -173,8 +194,8 @@ $(document).ready(function() {
 				//it could have been removed in the meantime
 				var n = $('#id' + notificationID);
 				if( n )
-					n.slideUp(1200,function(){$(this).remove()});
-			},7000);
+					n.slideUp(1000,function(){$(this).remove()});
+			},5000);
 		})(notificationID);
 		$('.notification-bar').append( $notification );
 	}
