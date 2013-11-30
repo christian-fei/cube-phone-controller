@@ -71,6 +71,8 @@ io.sockets.on('connection', function (socket) {
 			"room" : passphrase,
 			"controller" : false
 		};
+
+		console.log( passphrase + ' is now waiting for controllers' );
 		socket.emit('passphraseFreshFromTheOven', passphrase);
 	});
 
@@ -80,6 +82,7 @@ io.sockets.on('connection', function (socket) {
 		var exists = rooms[roomAttempt] ? true : false;
 
 		if( exists ){
+			console.log( 'controller joined room ' + roomAttempt );
 			socket.join( roomAttempt );
 			socket.store.data = {
 				"room" : roomAttempt,

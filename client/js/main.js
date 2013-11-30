@@ -16,7 +16,6 @@ $(document).ready(function() {
 	
 	var $cube = $('.cube'),
 		$statusText = $('.status-text'),
-		$debugText = $('.debug-text'),
 		$instance = $('.instance');
 
 	/*
@@ -39,7 +38,8 @@ $(document).ready(function() {
 
 
 	function resetListeners(){
-		window.removeEventListener('deviceorientation',handleDO);
+		console.log( 'removing listeners' );
+		window.removeEventListener('deviceorientation',handleDeviceOrientation);
 		socket.removeListener('controllerConnected');
 		socket.removeListener('controllerLeft');
 		socket.removeListener('passphraseFreshFromTheOven');
@@ -56,7 +56,7 @@ $(document).ready(function() {
 	*	C     O   O N  NN   T   R  R  O   O L     L     E     R  R
 	*	CCCCC OOOOO N   N   T   R   R OOOOO LLLLL LLLLL EEEEE R   R
 	*/
-	function handleDO(event){
+	function handleDeviceOrientation(event){
 		if( Date.now() - minInterval > lastUpdate ){
 			alpha = event.alpha;
 			beta = event.beta;
@@ -67,7 +67,6 @@ $(document).ready(function() {
 				beta : beta,
 				gamma : gamma
 			});
-			$debugText.html('x ' + gamma + '<br/>y' + beta);
 		}
 		lastUpdate = Date.now();
 	}
@@ -95,11 +94,16 @@ $(document).ready(function() {
 				orientation changes) send information about the device 
 				orientation to the server
 			*/
-			window.addEventListener("deviceorientation",handleDO);
+			window.addEventListener("deviceorientation",handleDeviceOrientation);
 		}
 	}
 	function showRoomInput(callback){
 		var dialog = $( $('#room-input-dialog-template').html() );
+
+		setTimeout(function(){
+			dialog.find('.room-input').focus();		
+		},100);
+
 		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
 			var roomAttempt = $('.room-input').val().trim();
 			if( roomAttempt && e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
@@ -147,7 +151,6 @@ $(document).ready(function() {
 
 			socket.on('controllerInstruction',function(orientation){
 				if(controllerAvailable){
-					$debugText.html('x ' + orientation.gamma + '<br/>y' + orientation.beta);
 					rotateCube( orientation.gamma , -orientation.beta );
 				}
 			});
@@ -171,7 +174,6 @@ $(document).ready(function() {
 		});
 		socket.on('controllerConnected',function(){
 			controllerAvailable = true;
-			resetListeners();
 			callback();
 		});
 	}
@@ -187,44 +189,4 @@ $(document).ready(function() {
 	$(window).on('beforeunload unload', function(){
 		socket.emit('windowUnloadSocketLeft');
 	});
-
-
-
-
-	/*
-		N   N OOOOO TTTTT I FFFFF I CCCCC AAAAA TTTTT I OOOOO N   N SSSSS
-      NN  N O   O   T   I F     I C     A   A   T   I O   O NN  N S
-      N N N O   O   T   I FFFF  I C     AAAAA   T   I O   O N N N SSSSS
-      N  NN O   O   T   I F     I C     A   A   T   I O   O N  NN     S
-      N   N OOOOO   T   I F     I CCCCC A   A   T   I OOOOO N   N SSSSS
-	*/
-	var lastNotificationText='';
-	function notify(text){
-		//to avoid same notifications over and over again
-		if(text === lastNotificationText){
-			return;
-		}
-		lastNotificationText = text;
-		var notificationID = Date.now();
-		var $notification = $('<li id="id' + notificationID + '" class="notification">' + text + '</li>').on('click',function(){
-			$(this).remove();
-		});
-
-		$('.notification-bar').append( $notification );
-
-		/*
-		dismiss the notification after x seconds
-		*/
-		(function(notificationID){
-			setTimeout(function(){
-				//it could have been removed in the meantime
-				var n = $('#id' + notificationID);
-				if( n )
-					n.slideUp(1000,function(){$(this).remove()});
-				//reset the text when the notification has been dismissed
-				lastNotificationText = '';
-			},5000);
-		})(notificationID);
-		
-	}
 });

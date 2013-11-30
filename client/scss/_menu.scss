@@ -1,55 +1,64 @@
 .menu{
+	$widthMenu: 15em;
+	$sizeToggle: 2.5em;
 	position:fixed;
 	top:0;
-	left:0;
+	left: -$widthMenu;
+	width: $widthMenu;
 	background: #222;
 	z-index: 2000;
 	color:white;
 
-	opacity: .45;
+	transition: all .3s ease;
+
+	transition-delay: .05s;
+
 
 	&:hover{
+		left:0;
 		opacity: 1;
 		width: 10em;
+
+		&:after{
+			content:'<';
+		}
 	}
 
+	&:after{
+		position: absolute;
+		top: 0;
+		right: -$sizeToggle;
+		height:$sizeToggle;
+		width:$sizeToggle;
+		content:'>';
+		font-size: 1.5em;
+		text-align: center;
+		line-height: $sizeToggle;
+
+		background: #222;
+		color: white;
+	}
+
+
 	a{
+		display: block;
 		color:white;
 		text-decoration: none;
-		display: block;
-		width: 95%;
+		padding: $sizeToggle/2 .4em;
 
-		transition: padding .3s ease;
 
 		&:hover{
 			color: #aaa;
-			padding-left: .5em;
 		}
 	}
 
 	li{
 		display: block;
-	}
 
-	.toggler{
-		padding:1em;
+		border-bottom: 1px solid #333;
 
-		&:after{
-			font-size: 1.5em;
-			content:'>>';
+		&:last-child{
+			border-bottom: none;
 		}
-	}
-
-	.toggler:hover{
-		&:after{
-			content:'';
-		}
-		.item{
-			display: block;
-		}
-	} 
-
-	.item{
-		display: none;
 	}
 }

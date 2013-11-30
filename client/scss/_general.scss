@@ -5,12 +5,13 @@ html,body{
   width: 100%;
   cursor:pointer;
   
-  /*you ain't gonna select shit on this demo, sis*/
-  user-select: none;
 
   font-family: Arial, Helvetica, sans-serif;
 
   background-color: $yellow;
+  
+  /*you ain't gonna select shit on this demo, sis*/
+  user-select: none;
 }
 
 

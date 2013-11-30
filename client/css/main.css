@@ -5,12 +5,12 @@ body {
   min-width: 100%;
   width: 100%;
   cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffb800;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #ffb800;
 }
 
 *,
@@ -288,6 +288,76 @@ body {
   transform: rotateY(180deg) translateZ(200px);
 }
 
+.room-input-dialog-wrapper,
+.passphrase-dialog-wrapper {
+  color: white;
+}
+
+.passphrase-dialog-wrapper {
+  background-color: #0087FF;
+  color: white;
+}
+
+.room-input-dialog-wrapper {
+  background-color: #a1af00;
+}
+
+.passphrase-dialog-wrapper {
+  background-color: #ffb800;
+}
+
+.room-input-dialog,
+.passphrase-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -10em;
+  margin-left: -10em;
+  width: 20em;
+  height: 20em;
+  line-height: 20em;
+}
+
+.room-input-dialog input,
+.room-input-dialog button,
+.passphrase-dialog input,
+.passphrase-dialog button {
+  font-size: 2em;
+  width: 100%;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  margin: 0;
+  display: inline-block;
+  padding: .5em 0;
+}
+
+.room-input-dialog input,
+.passphrase-dialog input {
+  text-align: center;
+  -webkit-transition: all .5s ease;
+  transition: all .5s ease;
+}
+
+.room-input-dialog input:focus ~ button,
+.passphrase-dialog input:focus ~ button {
+  opacity: 1;
+  visibility: visible;
+}
+
+.room-input-dialog button,
+.passphrase-dialog button {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 50%;
+  margin-top: .9em;
+  background-color: #222;
+  color: #fff;
+  -webkit-transition: all .2s ease;
+  transition: all .2s ease;
+}
+
 .notification-bar {
   position: fixed;
   top: 0;
@@ -329,53 +399,57 @@ body {
 .menu {
   position: fixed;
   top: 0;
-  left: 0;
+  left: -15em;
+  width: 15em;
   background: #222;
   z-index: 2000;
   color: white;
-  opacity: .45;
+  -webkit-transition: all .3s ease;
+  transition: all .3s ease;
+  -webkit-transition-delay: .05s;
+  transition-delay: .05s;
 }
 
 .menu:hover {
+  left: 0;
   opacity: 1;
   width: 10em;
 }
 
+.menu:hover:after {
+  content: '<';
+}
+
+.menu:after {
+  position: absolute;
+  top: 0;
+  right: -2.5em;
+  height: 2.5em;
+  width: 2.5em;
+  content: '>';
+  font-size: 1.5em;
+  text-align: center;
+  line-height: 2.5em;
+  background: #222;
+  color: white;
+}
+
 .menu a {
+  display: block;
   color: white;
   text-decoration: none;
-  display: block;
-  width: 95%;
-  -webkit-transition: padding .3s ease;
-  transition: padding .3s ease;
+  padding: 1.25em 0.4em;
 }
 
 .menu a:hover {
   color: #aaa;
-  padding-left: .5em;
 }
 
 .menu li {
   display: block;
+  border-bottom: 1px solid #333;
 }
 
-.menu .toggler {
-  padding: 1em;
-}
-
-.menu .toggler:after {
-  font-size: 1.5em;
-  content: '>>';
-}
-
-.menu .toggler:hover:after {
-  content: '';
-}
-
-.menu .toggler:hover .item {
-  display: block;
-}
-
-.menu .item {
-  display: none;
+.menu li:last-child {
+  border-bottom: none;
 }

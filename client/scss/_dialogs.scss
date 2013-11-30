@@ -1,6 +1,13 @@
 .room-input-dialog-wrapper, .passphrase-dialog-wrapper{
 	color:white;
 }
+.passphrase-dialog-wrapper{
+	@extend %splash-wrapper;
+
+	background-color: #0087FF;
+	color:white;
+}
+
 .room-input-dialog-wrapper{
 	background-color: $green;
 }
@@ -32,13 +39,10 @@
 
 		input{
 			text-align: center;
-			opacity: .85;
 			transition: all .5s ease;
 
 			&:focus{
-				opacity: 1;
-
-				& + button{
+				& ~ button{
 					opacity: 1;
 					visibility: visible;
 				}

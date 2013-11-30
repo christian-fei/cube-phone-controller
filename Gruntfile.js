@@ -44,7 +44,7 @@ module.exports = function ( grunt ) {
         uglify: {
             dist: {
                 files: {
-                    'client/js/built.min.js': [ 'client/js/jquery.js', 'client/js/main.js' ]
+                    'client/js/built.min.js': [ 'client/js/jquery.js',  'client/js/notification.js', 'client/js/main.js' ]
                 }
             }
         },
@@ -53,7 +53,7 @@ module.exports = function ( grunt ) {
             js_watch: {
                 files: [
                     'client/js/{,*/}*.js',
-                    '!js/built.min.js'
+                    '!client/js/built.min.js'
                 ],
                 tasks: [ 'uglify' ]
             },
