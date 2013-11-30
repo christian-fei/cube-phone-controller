@@ -25,6 +25,21 @@ $(document).ready(function() {
 	*/
 	var HOST = '192.168.0.106',
 		socket = io.connect('http://' + HOST);
+
+	/*
+	if the following parameter are set, show the modal straightaway
+	*/
+	var quickParams = window.location.search.substring('1');
+	switch(quickParams){
+		case 'host':
+			prepareSetup('host');
+			break;
+		case 'controller':
+			prepareSetup('controller');
+			break;
+	}
+
+
 	
 
 
@@ -56,36 +71,7 @@ $(document).ready(function() {
 		if( choice = $(this).data('choice') ){
 			//don't follow the link, it's a trap
 			e.preventDefault();
-			/*
-				remove the splash screen if any
-				and also dismiss the menu
-			*/
-			if( $('.splash-screen') )
-				$('.splash-screen').remove();
-			$('.menu').removeClass('show');
-
-			/*
-			essentially restore the UI
-			*/
-			cubeEnabled = true;
-			compassEnabled = false;
-			$('#option-cube').prop('checked',true);
-			$('#option-compass').prop('checked',false);
-
-			resetListeners();
-
-			//remove old modals, coz below I create them again
-			if( $('.room-input-dialog-wrapper') )
-				$('.room-input-dialog-wrapper').remove();
-			if( $('.passphrase-dialog-wrapper') )
-				$('.passphrase-dialog-wrapper').remove();
-
-
-			if( choice === 'controller' ){
-				setupController();
-			}else{
-				setupHost();
-			}
+			prepareSetup(choice);
 		}
 	});
 
@@ -100,7 +86,11 @@ $(document).ready(function() {
 		$('.controller-options input[type="checkbox"]').prop('checked',false);
 		//restore check, because of previous operation
 		$(this).prop('checked',true);
-
+		/*
+		the controller chooses between different options and sends
+		it to the server.
+		the server routes it to the host PC which then acts accordingly.
+		*/
 		socket.emit('controllerOption', $(this).data('option') );
 	});
 
@@ -119,8 +109,39 @@ $(document).ready(function() {
 		socket.removeListener('controllerInstruction');
 		socket.removeListener('responseAttemptControllerRoom');
 	}
+	function prepareSetup(participant){
+		/*
+			remove the splash screen if any
+			and also dismiss the menu
+		*/
+		if( $('.splash-screen') )
+			$('.splash-screen').remove();
+		$('.menu').removeClass('show');
+
+		/*
+		essentially restore the UI
+		*/
+		cubeEnabled = true;
+		compassEnabled = false;
+		$('#option-cube').prop('checked',true);
+		$('#option-compass').prop('checked',false);
+
+		resetListeners();
+
+		//remove old modals, coz below I create them again
+		if( $('.room-input-dialog-wrapper') )
+			$('.room-input-dialog-wrapper').remove();
+		if( $('.passphrase-dialog-wrapper') )
+			$('.passphrase-dialog-wrapper').remove();
 
 
+		if( participant === 'controller' ){
+			setupController();
+		}else{
+			setupHost();
+		}
+
+	}
 
 
 
@@ -371,7 +392,7 @@ $(document).ready(function() {
 		});
 	}
 	function changedEnough(a,b,amount){
-		if( Math.abs(a) > Math.abs(b) + amount || Math.abs(a) < Math.abs(b) - amount )
+		if( a > b + amount || a < b - amount )
 			return true;
 		return false;
 	}

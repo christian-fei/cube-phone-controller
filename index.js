@@ -23,7 +23,6 @@ http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || httpHos
 */
 function httpHandler(req,res){
 	var requrl = url.parse(req.url).pathname;
-	console.log( requrl );
 	if( requrl === '/' ){
 		res.writeHead(200, {
 			'Content-Type': 'text/html'
