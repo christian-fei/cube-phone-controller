@@ -31,6 +31,27 @@ body {
   line-height: 1.5em;
 }
 
+.view-description {
+  text-align: center;
+  padding: 1em 0;
+}
+
+.debug-axis {
+  padding: .5em 1em;
+  opacity: .3;
+}
+
+.debug-axis:hover {
+  opacity: 1;
+}
+
+.debug-axis:before {
+  content: attr(data-axis);
+  display: inline-block;
+  margin-right: 1em;
+  font-weight: bold;
+}
+
 .splash-screen,
 .room-input-dialog-wrapper,
 .passphrase-dialog-wrapper {
@@ -205,7 +226,7 @@ body {
   box-sizing: border-box;
 }
 
-.cube-perspective {
+.cube-wrapper {
   -webkit-perspective: 2000;
   -ms-perspective: 2000;
   perspective: 2000;
@@ -354,7 +375,7 @@ body {
 
 .notification-bar {
   position: fixed;
-  top: 0;
+  bottom: 0;
   right: 0;
   max-width: 100%;
   width: 25em;
@@ -545,4 +566,33 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.compass-wrapper {
+  display: none;
+  width: 300px;
+  height: 300px;
+  margin: auto;
+  border: 1px solid lightgrey;
+  background-color: #D6D6D6;
+}
+
+.compass-wrapper .map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-size: 100%;
+}
+
+.compass-wrapper .compass-pointer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-bottom: 3em solid #0087ff;
+  border-left: 1.5em solid transparent;
+  border-right: 1.5em solid transparent;
+  margin-top: -1.5em;
+  margin-left: -1.5em;
 }

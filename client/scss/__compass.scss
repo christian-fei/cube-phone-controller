@@ -1,0 +1,31 @@
+$sizeCompassPointer: 3em;
+.compass-wrapper{
+	display: none;
+	width: 300px;
+	height: 300px;
+	margin: auto;
+	border: 1px solid lightgrey;
+	background-color: #D6D6D6;
+
+	.map{
+		position: relative;
+		width: 100%;
+		height: 100%;
+		background-size: 100%;
+
+	}
+	.compass-pointer{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 0;
+		height: 0;
+
+		border-bottom: $sizeCompassPointer solid $blue;
+		border-left: $sizeCompassPointer/2 solid transparent;
+		border-right: $sizeCompassPointer/2 solid transparent;
+
+		margin-top: -$sizeCompassPointer/2;
+		margin-left: -$sizeCompassPointer/2;
+	}
+}

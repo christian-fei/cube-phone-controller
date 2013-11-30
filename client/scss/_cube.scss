@@ -2,7 +2,7 @@ $size-cube: 200px;
 $depth: 300;
 *,*:before,*:after{margin: 0;padding: 0;box-sizing:border-box;}
 
-.cube-perspective{
+.cube-wrapper{
   perspective:2000;
   position:absolute;
   top: 50%;

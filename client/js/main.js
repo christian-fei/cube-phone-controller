@@ -1,10 +1,6 @@
-var HOST = '192.168.0.106',
-	socket = io.connect('http://' + HOST);
-
-
 var room = '';
 
-var lastOrientationState = {
+var orientationState = {
 	alpha: 0,
 	beta: 0,
 	gamma: 0
@@ -14,20 +10,45 @@ var lastOrientationState = {
 variables for the controller
 */
 var lastUpdate = Date.now(),
-	minInterval = 1000/60, //towards 60 fps, the imaginary 60fps, and also to avoid flooding the socket
+	minInterval = 2,
 	canHandleOrientation;
 
+/*
+variables for the host
+*/
+var cubeEnabled = true,
+	compassEnabled = false;
+
 $(document).ready(function() {
+	/*
+		inside here to hide them from the console
+	*/
+	var HOST = '192.168.0.106',
+		socket = io.connect('http://' + HOST);
 	
+
+
+
+
+	/*		
+		U   U II     SSSSS TTTTT U   U FFFFF FFFFF
+		U   U II     S       T   U   U F     F
+		U   U II     SSSSS   T   U   U FFFF  FFFF
+		U   U II         S   T   U   U F     F
+		UUUUU II     SSSSS   T   UUUUU F     F
+	*/
 	var $cube = $('.cube'),
 		$hostView = $('.host-specific-view'),
 		$controllerView = $('.controller-specific-view'),
-		$statusText = $('.status-text'),
-		$instance = $('.instance');
+		$instance = $('.instance'),
+		$cubeWrapper = $('.cube-wrapper'),
+		$compassWrapper = $('.compass-wrapper'),
+		$compassPointer = $('.compass-pointer'),
+		$interval = $('.interval'),
+		$debugAxisX = $('.debug-axis[data-axis="x"'),
+		$debugAxisY = $('.debug-axis[data-axis="y"'),
+		$debugAxisZ = $('.debug-axis[data-axis="z"');
 
-	/*
-		UI handlers
-	*/
 	$('.choice, .menu .item a').on('click',function(e){
 		var choice;
 		if( choice = $(this).data('choice') ){
@@ -62,15 +83,50 @@ $(document).ready(function() {
 		$('.menu').toggleClass('show');
 	});
 
+	$interval.on('change',function(e){
+		var tmpval = e.target.value;
+		if( tmpval >= 0 && tmpval < 500){
+			minInterval = tmpval;
+		}
+	});
+
+
+	/*
+	options used to toggle the view on the host
+	*/
+	$('.controller-options input[type="checkbox"]').on('change',function(){
+		//reset all other options
+		$('.controller-options input[type="checkbox"]').prop('checked',false);
+		//restore check, because of previous operation
+		$(this).prop('checked',true);
+
+		console.log( $(this).data('option') );
+
+		socket.emit('controllerOption', $(this).data('option') );
+	});
+
+
+
+
+
+
+
 
 	function resetListeners(){
 		window.removeEventListener('deviceorientation',handleDeviceOrientation);
 		socket.removeListener('controllerConnected');
 		socket.removeListener('controllerLeft');
-		socket.removeListener('passphraseFreshFromTheOven');
+		socket.removeListener('instanceCreated');
 		socket.removeListener('controllerInstruction');
 		socket.removeListener('responseAttemptControllerRoom');
 	}
+
+
+
+
+
+
+
 
 
 	/*
@@ -83,7 +139,7 @@ $(document).ready(function() {
 
 
 	/*
-		Detect if it can handle device orientation
+		Detect if the controller can handle device orientation
 	*/
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener("deviceorientation", checkDeviceOrientation, true);
@@ -112,30 +168,47 @@ $(document).ready(function() {
 		lastUpdate = Date.now();
 	}
 
+	var alpha=beta=gamma=0;
 	function sendOrientatioonUpdate(data){
-		if( data.alpha ){
-			socket.emit('controllerChanged',{
-				alpha : data.alpha,
-				beta : data.beta,
-				gamma : data.gamma
-			});
-		}else{
-			if( data.alphaKeyboard ){
-				lastOrientationState.alpha += data.alphaKeyboard;
-			}
-			if( data.betaKeyboard ){
-				lastOrientationState.beta += data.betaKeyboard;
-			}
-			if( data.gammaKeyboard ){
-				lastOrientationState.gamma += data.gammaKeyboard;
-			}
+		/*
+		make the data homogen
+		*/
+		alpha = data.alpha ? data.alpha : data.alphaKeyboard ? data.alphaKeyboard : 0;
+		beta = data.beta ? data.beta : data.betaKeyboard ? data.betaKeyboard : 0;
+		gamma = data.gamma ? data.gamma : data.gammaKeyboard ? data.gammaKeyboard : 0;
 
-			socket.emit('controllerChanged',{
-				alpha : lastOrientationState.alpha,
-				beta : lastOrientationState.beta,
-				gamma : lastOrientationState.gamma
-			});
-		}
+		/*
+			keyboard = add value to current state
+		*/
+		if( data.alphaKeyboard )
+			orientationState.alpha += data.alphaKeyboard;
+		if( data.betaKeyboard )
+			orientationState.beta += data.betaKeyboard;
+		if( data.gammaKeyboard )
+			orientationState.gamma += data.gammaKeyboard;
+		
+		/*
+			no keyboard, but deviceorienttation = set value to current state
+		*/
+		if( data.alpha )
+			orientationState.alpha = alpha;
+		if( data.beta )
+			orientationState.beta = beta;
+		if( data.gamma )
+			orientationState.gamma = gamma;
+
+		socket.emit('controllerChanged',{
+			alpha : orientationState.alpha,
+			beta : orientationState.beta,
+			gamma : orientationState.gamma
+		});
+
+		$debugAxisZ.text( alpha );
+		/*
+			gamma and beta are used, alpha is optional, for future ideas
+		*/
+		$debugAxisX.text( gamma );
+		$debugAxisY.text( beta );
 	}
 	function setupController(){
 		/*
@@ -154,7 +227,6 @@ $(document).ready(function() {
 			$controllerView.show();
 
 			notify('successfully connected to the host computer');
-			$statusText.html('<h3>controlling instance ' + room + '</h3>');
 			$instance.html(room);
 
 			if( canHandleOrientation ){
@@ -168,18 +240,22 @@ $(document).ready(function() {
 						case 37:
 							/*left*/
 							sendOrientatioonUpdate({gammaKeyboard:3});
-							break;
-						case 38:
-							/*up*/
-							sendOrientatioonUpdate({betaKeyboard:3});
+							$debugAxisX.text( orientationState.gamma );
 							break;
 						case 39:
 							/*right*/
 							sendOrientatioonUpdate({gammaKeyboard:-3});
+							$debugAxisX.text( orientationState.gamma );
+							break;
+						case 38:
+							/*up*/
+							sendOrientatioonUpdate({betaKeyboard:3});
+							$debugAxisY.text( orientationState.beta );
 							break;
 						case 40:
 							/*down*/
 							sendOrientatioonUpdate({betaKeyboard:-3});
+							$debugAxisY.text( orientationState.beta );
 							break;
 					}
 				});
@@ -195,7 +271,7 @@ $(document).ready(function() {
 
 		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
 			var roomAttempt = $('.room-input').val().trim();
-			console.log( roomAttempt && ( e.target.nodeName === 'BUTTON' || e.which && e.which == 13) );
+
 			if( roomAttempt && ( e.target.nodeName === 'BUTTON' || e.which && e.which == 13) ){
 				/*
 					Follow the protocol:
@@ -240,15 +316,39 @@ $(document).ready(function() {
 			$controllerView.hide();
 
 			socket.on('controllerInstruction',function(orientation){
-				if(controllerAvailable){
-					rotateCube( orientation.gamma , -orientation.beta );
-				}
+				if(cubeEnabled)
+					handleCube( orientation.gamma , -orientation.beta );
+				if(compassEnabled)
+					handleCompass( orientation.alpha );
+
+				$debugAxisZ.text( orientation.alpha );
+				/*
+				gamma and beta are used, alpha is optional, for future ideas
+				*/
+				$debugAxisX.text( orientation.gamma );
+				$debugAxisY.text( orientation.beta );
 			});
 
 			socket.on('controllerLeft',function(){
-				controllerAvailable = false;
-				$statusText.html('controller for instance ' + room + ' left');
 				setupHost();
+			});
+
+			socket.on('controllerOptionInstruction',function(option){
+				$cubeWrapper.hide();
+				cubeEnabled = false;
+				$compassWrapper.hide();
+				compassEnabled = false;
+				switch(option){
+					case 'compass':
+						$compassWrapper.show();
+						compassEnabled = true;
+						handleGeoLocation();
+						break;
+					case 'cube':
+						$cubeWrapper.show();
+						cubeEnabled = true;
+						break;
+				}
 			});
 		}
 	}
@@ -256,20 +356,36 @@ $(document).ready(function() {
 		var dialog = $( $('#passphrase-dialog-template').html() );
 		$('body').append(dialog);
 
-		socket.emit('requestPassphrase');
-		socket.on('passphraseFreshFromTheOven', function(passphrase){
+		socket.emit('requestNewInstance');
+		socket.on('instanceCreated', function(passphrase){
 			room = passphrase;
 			dialog.find('.room-input').val(passphrase);
 			notify('connect your smartphone as a controller');
 		});
 		socket.on('controllerConnected',function(){
-			controllerAvailable = true;
 			callback();
 		});
 	}
 	
-	function rotateCube(x,y){
+	function handleCube(x,y){
 		$cube.css('transform', 'rotateY('+x+'deg) rotateX('+y+'deg)');
+	}
+	function handleCompass(z){
+		z *= -1;
+		$compassPointer.css('transform','rotateZ(' + z + 'deg)');
+	}
+
+	function handleGeoLocation(){
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+				var locationString = position.coords.latitude + ',' + position.coords.longitude;
+				$compassWrapper.find('.map').css('background-image','url("http://maps.googleapis.com/maps/api/staticmap?zoom=15&sensor=true&size=350x350&markers=color:red%7C' + locationString + '")');
+			}, function() {
+				alert('problem with geoposition you');
+			});
+		}else{
+			alert('no geolocation for you, sry');
+		}
 	}
 
 	/*

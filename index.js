@@ -64,16 +64,15 @@ function httpHandler(req,res){
 */
 io.sockets.on('connection', function (socket) {
 
-	socket.on('requestPassphrase', function(){
-		var passphrase = getNewPassphrase();
-		socket.join( passphrase );
+	socket.on('requestNewInstance', function(){
+		var instance = generateNewInstance();
+		socket.join( instance );
 		socket.store.data = {
-			"room" : passphrase,
+			"room" : instance,
 			"controller" : false
 		};
 
-		console.log( passphrase + ' is now waiting for controllers' );
-		socket.emit('passphraseFreshFromTheOven', passphrase);
+		socket.emit('instanceCreated', instance);
 	});
 
 	socket.on('attemptControllerRoom',function(roomAttempt){
@@ -98,6 +97,10 @@ io.sockets.on('connection', function (socket) {
 		socket.broadcast.to( socket.store.data.room ).emit('controllerInstruction', orientation);
 	});
 
+	socket.on('controllerOption',function(option){
+		socket.broadcast.to( socket.store.data.room ).emit('controllerOptionInstruction', option);
+	});
+
 	socket.on('windowUnloadSocketLeft',function(){
 		gracefulRoomLeaving(socket);
 	});
@@ -116,20 +119,20 @@ function gracefulRoomLeaving(socket){
 		socket.broadcast.to( leftRoom ).emit('controllerLeft', io.sockets.manager.rooms[ '/'+leftRoom ] );
 }
 
-function getNewPassphrase(){
+function generateNewInstance(){
 	//a string of 5 uppercase characters
 	var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	function generatePassphrase(){
+	function generateRandomInstance(){
 		var p = '';
 		for(var i = 0; i < 3; i++){
 			p += alphabet[ Math.floor(Math.random() * alphabet.length)];
 		}
 		return p;
 	}
-	var passphrase = generatePassphrase();
+	var passphrase = generateRandomInstance();
 
 	while( rooms[passphrase] ){
-		passphrase = generatePassphrase();
+		passphrase = generateRandomInstance();
 	}
 	rooms[ passphrase.toString() ] = true;
 

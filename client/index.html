@@ -20,8 +20,7 @@
 					<input type="checkbox" id="toggle-info"/>
 					<label for="toggle-info">i</label>
 					<div class="content">
-						With this passphrase you will be able to control different component of this website with your smartphone!
-						Open this website on your smartphone and enter the passphrase shown below.
+						Enter the passphrase provided by your host computer. (open this website on your PC and get a passphrase to start playing).
 					</div>
 				</div>
 			</aside>
@@ -35,7 +34,7 @@
 					<input type="checkbox" id="toggle-info"/>
 					<label for="toggle-info">i</label>
 					<div class="content">
-						With this passphrase you will be able to control different component of this website with your smartphone!
+						With this passphrase you will be able to control different components of this website with your smartphone!
 						Open this website on your smartphone and enter the passphrase shown below.
 					</div>
 				</div>
@@ -88,10 +87,15 @@
 			</div>
 		</div>
 
-		<div class="status-text"></div>
 
 		<div class="host-specific-view">
-			<div class='cube-perspective'>
+			<h1 class="view-description">host</h1>
+
+			<div class="debug-axis" data-axis="x"></div>
+			<div class="debug-axis" data-axis="y"></div>
+			<div class="debug-axis" data-axis="z"></div>
+
+			<div class='cube-wrapper'>
 				<div class='cube'>
 					<div class='face'>
 						<span>
@@ -125,9 +129,32 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="compass-wrapper">
+				<div class="map">
+					<div class="compass-pointer"></div>
+				</div>
+			</div>
 		</div>
+
 		<div class="controller-specific-view">
-			<h1>controller</h1>
+			<h1 class="view-description">controller</h1>
+			<div class="debug-axis" data-axis="x"></div>
+			<div class="debug-axis" data-axis="y"></div>
+			<div class="debug-axis" data-axis="z"></div>
+
+			<input type="slider" class="interval" min="1" max="500"/>
+
+			<div class="controller-options">
+				<div class="option">
+					<label for="option-cube">cube</label>
+					<input type="checkbox" id="option-cube" data-option="cube" checked>
+				</div>
+				<div class="option">
+					<label for="option-compass">compass</label>
+					<input type="checkbox" id="option-compass" data-option="compass">
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

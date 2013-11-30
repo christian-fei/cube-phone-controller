@@ -33,7 +33,7 @@ module.exports = function ( grunt ) {
                 files:{
                     'client/css/main.css':'client/css/main.css'
                 }
-            }
+            },
         },
         /*
           UGLIFY and CONCAT YOUR JS FILES:
@@ -44,7 +44,17 @@ module.exports = function ( grunt ) {
         uglify: {
             dist: {
                 files: {
-                    'client/js/built.min.js': [ 'client/js/jquery.js',  'client/js/notification.js', 'client/js/main.js' ]
+                    'client/js/built.min.js': [ 'client/js/jquery.js', 'client/js/notification.js', 'client/js/main.js' ]
+                }
+            },
+            debug:{
+                options: {
+                    compress: false,
+                    mangle: false,
+                    beautify: true
+                },
+                files:{
+                    'client/js/built.min.js': [ 'client/js/jquery.js', 'client/js/notification.js', 'client/js/main.js' ]
                 }
             }
         },
@@ -68,6 +78,12 @@ module.exports = function ( grunt ) {
     
     grunt.registerTask( 'default' , [
         'uglify',
+        'autoprefixer',
+        'compass',
+        'watch'
+    ]);
+    grunt.registerTask( 'debug' , [
+        'uglify:debug',
         'autoprefixer',
         'compass',
         'watch'

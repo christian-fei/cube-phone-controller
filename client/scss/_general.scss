@@ -29,3 +29,23 @@ html,body{
 	padding: .5em;
 	line-height: 1.5em;
 }
+
+.view-description{
+	text-align: center;
+	padding: 1em 0;
+}
+
+.debug-axis{
+	padding: .5em 1em;
+	opacity: .3;
+	&:hover{
+		opacity: 1;
+	}
+
+	&:before{
+		content: attr(data-axis);
+		display: inline-block;
+		margin-right: 1em;
+		font-weight: bold
+	}
+}
