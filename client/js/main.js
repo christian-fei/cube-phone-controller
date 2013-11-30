@@ -4,13 +4,17 @@ var HOST = '192.168.0.106',
 
 var room = '';
 
+var lastOrientationState = {
+	alpha: 0,
+	beta: 0,
+	gamma: 0
+};
 
 /*
 variables for the controller
 */
-var alpha,beta,gamma,absolute,debug,
-		lastUpdate = Date.now(),
-		minInterval = 10;
+var lastUpdate = Date.now(),
+	minInterval = 10;
 
 $(document).ready(function() {
 	
@@ -65,45 +69,105 @@ $(document).ready(function() {
 	*	C     O   O N  NN   T   R  R  O   O L     L     E     R  R
 	*	CCCCC OOOOO N   N   T   R   R OOOOO LLLLL LLLLL EEEEE R   R
 	*/
+
+
+	/*
+		Detect if it can handle device orientation
+	*/
+	var canHandleOrientation;
+	if (window.DeviceOrientationEvent) {
+		window.addEventListener("deviceorientation", checkDeviceOrientation, true);
+	}
+
+	function checkDeviceOrientation(event){
+		//console.log( event );
+		window.removeEventListener('deviceorientation',checkDeviceOrientation);
+		canHandleOrientation = event.alpha;
+	}
+
+
+	/*
+		*About* every minInterval ms (instead of every time the
+		orientation changes) send information about the device 
+		orientation to the server
+	*/
 	function handleDeviceOrientation(event){
 		if( Date.now() - minInterval > lastUpdate ){
-			alpha = event.alpha;
-			beta = event.beta;
-			gamma = event.gamma;
-
-			socket.emit('controllerChanged',{
-				alpha : alpha,
-				beta : beta,
-				gamma : gamma
-			});
+			sendOrientatioonUpdate(event);
 		}
 		lastUpdate = Date.now();
 	}
+
+	function sendOrientatioonUpdate(data){
+		if( data.alpha ){
+			socket.emit('controllerChanged',{
+				alpha : data.alpha,
+				beta : data.beta,
+				gamma : data.gamma
+			});
+		}else{
+			if( data.alphaKeyboard ){
+				lastOrientationState.alpha += data.alphaKeyboard;
+			}
+			if( data.betaKeyboard ){
+				lastOrientationState.beta += data.betaKeyboard;
+			}
+			if( data.gammaKeyboard ){
+				lastOrientationState.gamma += data.gammaKeyboard;
+			}
+
+			socket.emit('controllerChanged',{
+				alpha : lastOrientationState.alpha,
+				beta : lastOrientationState.beta,
+				gamma : lastOrientationState.gamma
+			});
+		}
+	}
 	function setupController(){
 
-		$('.cube-perspective').hide();
+		$cube.hide();
 
 		/*
 			once the user typed in the passphrase that he/she got from the host,
 			the callback will be executed and the controller starts to send
 			infos about the device orientation
 		*/
-		showRoomInput(startTrackingDeviceOrientation);
+		showRoomInput(trackController);
 
 		/*
 			starts tracking information about the device orientation and sends 
 			this information to the server which routes it to the host computer
 		*/
-		function startTrackingDeviceOrientation(){
-			notify('controller for instance ' + room + ' set up');
+		function trackController(){
+			notify('successfully connected to the host computer');
 			$statusText.html('<h3>controlling instance ' + room + '</h3>');
 			$instance.html(room);
-			/*
-				*About* every minInterval ms (instead of every time the
-				orientation changes) send information about the device 
-				orientation to the server
-			*/
-			window.addEventListener("deviceorientation",handleDeviceOrientation);
+
+			if( canHandleOrientation ){
+				window.addEventListener("deviceorientation",handleDeviceOrientation);			
+			}else{
+				$(document).on('keydown',function(e){
+					console.log(e.which);
+					switch(e.which){
+						case 37:
+							/*left*/
+							sendOrientatioonUpdate({gammaKeyboard:2});
+							break;
+						case 38:
+							/*up*/
+							sendOrientatioonUpdate({betaKeyboard:2});
+							break;
+						case 39:
+							/*right*/
+							sendOrientatioonUpdate({gammaKeyboard:-2});
+							break;
+						case 40:
+							/*down*/
+							sendOrientatioonUpdate({betaKeyboard:-2});
+							break;
+					}
+				});
+			}
 		}
 	}
 	function showRoomInput(callback){
