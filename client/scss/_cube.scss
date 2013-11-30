@@ -19,14 +19,13 @@ $depth: 300;
   position:absolute;
 }
 .cube{
-  display: none;
   transform-style: preserve-3d;
   transform-origin:center center;
   width: 100%;
   height: 100%;
   border:1px solid lightgrey;
 
-  transition: all 0.1s ease;
+  transition: all 0.05s ease;
 }
 
 .face{
@@ -43,11 +42,14 @@ $depth: 300;
     font-size: 7em;
   }
   &:hover{
-    opacity: 1;
+    //opacity: 1;
   }
 }
 .face:nth-child(2){
-  transform: rotateX(-90deg) translateZ(-$size-cube/2) translateY($size-cube/2);
+  /*
+  rotateY(180deg) to make the text readable
+  */
+  transform: rotateX(-90deg) rotateY(180deg) translateZ($size-cube/2) translateY($size-cube/2);
 }
 .face:nth-child(3){
   transform: rotateX(-90deg) translateZ($size-cube/2) translateY($size-cube/2);
@@ -56,7 +58,10 @@ $depth: 300;
   transform: rotateY(-90deg) translateX(-$size-cube/2) translateZ($size-cube/2);
 }
 .face:nth-child(5){
-  transform: rotateY(-90deg) translateX(-$size-cube/2) translateZ(-$size-cube/2);
+  /*
+  rotateY(180deg) to make the text readable
+  */
+  transform: rotateY(-90deg) rotateY(180deg) translateX($size-cube/2) translateZ($size-cube/2);
 }
 .face:nth-child(6){
   transform: rotateY(180deg) translateZ($size-cube);

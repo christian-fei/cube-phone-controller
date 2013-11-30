@@ -16,8 +16,8 @@ function notify(text){
 	var $notification = $('<li id="id' + notificationID + '" class="notification">' + text + '</li>');
 
 	$notification.on({
-		'dblclick tap': function(){
-			$(this).remove();
+		'click tap': function(){
+			$(this).slideUp(1000,function(){$(this).remove()});
 			lastNotificationText = '';
 		}
 	});
@@ -35,7 +35,7 @@ function notify(text){
 				n.slideUp(1000,function(){$(this).remove()});
 			//reset the text when the notification has been dismissed
 			lastNotificationText = '';
-		},5000);
+		},7000);
 	})(notificationID);
 	
 }

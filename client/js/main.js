@@ -14,11 +14,14 @@ var lastOrientationState = {
 variables for the controller
 */
 var lastUpdate = Date.now(),
-	minInterval = 10;
+	minInterval = 1000/60, //towards 60 fps, the imaginary 60fps, and also to avoid flooding the socket
+	canHandleOrientation;
 
 $(document).ready(function() {
 	
 	var $cube = $('.cube'),
+		$hostView = $('.host-specific-view'),
+		$controllerView = $('.controller-specific-view'),
 		$statusText = $('.status-text'),
 		$instance = $('.instance');
 
@@ -26,12 +29,19 @@ $(document).ready(function() {
 		UI handlers
 	*/
 	$('.choice, .menu .item a').on('click',function(e){
-		if( $(this).data('choice') ){
+		var choice;
+		if( choice = $(this).data('choice') ){
+			//don't follow the link, it's a trap
+			e.preventDefault();
+			/*
+				remove the splash screen if any
+				and also dismiss the menu
+			*/
 			if( $('.splash-screen') )
 				$('.splash-screen').remove();
-			console.log( $(this).data('choice') );
+			$('.menu').removeClass('show');
+
 			resetListeners();
-			e.preventDefault();
 
 			//remove old modals, coz below I create them again
 			if( $('.room-input-dialog-wrapper') )
@@ -39,7 +49,8 @@ $(document).ready(function() {
 			if( $('.passphrase-dialog-wrapper') )
 				$('.passphrase-dialog-wrapper').remove();
 
-			if( $(this).data('choice') === 'controller' ){
+
+			if( choice === 'controller' ){
 				setupController();
 			}else{
 				setupHost();
@@ -74,7 +85,6 @@ $(document).ready(function() {
 	/*
 		Detect if it can handle device orientation
 	*/
-	var canHandleOrientation;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener("deviceorientation", checkDeviceOrientation, true);
 	}
@@ -82,6 +92,10 @@ $(document).ready(function() {
 	function checkDeviceOrientation(event){
 		//console.log( event );
 		window.removeEventListener('deviceorientation',checkDeviceOrientation);
+		/*
+			event.alpha will be null if not supported, so a simple if(canHandleOrientation)
+			is enough to detect wether a browser supports deviceorientation or not
+		*/
 		canHandleOrientation = event.alpha;
 	}
 
@@ -124,9 +138,6 @@ $(document).ready(function() {
 		}
 	}
 	function setupController(){
-
-		$cube.hide();
-
 		/*
 			once the user typed in the passphrase that he/she got from the host,
 			the callback will be executed and the controller starts to send
@@ -139,31 +150,36 @@ $(document).ready(function() {
 			this information to the server which routes it to the host computer
 		*/
 		function trackController(){
+			$hostView.hide();
+			$controllerView.show();
+
 			notify('successfully connected to the host computer');
 			$statusText.html('<h3>controlling instance ' + room + '</h3>');
 			$instance.html(room);
 
 			if( canHandleOrientation ){
+				notify('your device supports deviceorientation');
 				window.addEventListener("deviceorientation",handleDeviceOrientation);			
 			}else{
+				notify('your device doesn\'t support deviceorientation, use your keyboard to control the host');
 				$(document).on('keydown',function(e){
 					console.log(e.which);
 					switch(e.which){
 						case 37:
 							/*left*/
-							sendOrientatioonUpdate({gammaKeyboard:2});
+							sendOrientatioonUpdate({gammaKeyboard:3});
 							break;
 						case 38:
 							/*up*/
-							sendOrientatioonUpdate({betaKeyboard:2});
+							sendOrientatioonUpdate({betaKeyboard:3});
 							break;
 						case 39:
 							/*right*/
-							sendOrientatioonUpdate({gammaKeyboard:-2});
+							sendOrientatioonUpdate({gammaKeyboard:-3});
 							break;
 						case 40:
 							/*down*/
-							sendOrientatioonUpdate({betaKeyboard:-2});
+							sendOrientatioonUpdate({betaKeyboard:-3});
 							break;
 					}
 				});
@@ -179,7 +195,8 @@ $(document).ready(function() {
 
 		dialog.find('.room-confirm, .room-input').on('click keyup',function(e){
 			var roomAttempt = $('.room-input').val().trim();
-			if( roomAttempt && e.which && e.which == 13 || e.target.nodeName === 'BUTTON' ){
+			console.log( roomAttempt && ( e.target.nodeName === 'BUTTON' || e.which && e.which == 13) );
+			if( roomAttempt && ( e.target.nodeName === 'BUTTON' || e.which && e.which == 13) ){
 				/*
 					Follow the protocol:
 						1) check if room exists (ask server)
@@ -196,7 +213,6 @@ $(document).ready(function() {
 						notify('it seems like you mistyped the passphrase. try again.');
 					}
 				});
-
 			}
 		});
 		$('body').append(dialog);
@@ -220,7 +236,8 @@ $(document).ready(function() {
 			notify('controller connected to instance ' + room);
 			$instance.html(room);
 			$('.passphrase-dialog-wrapper').remove();
-			$cube.show();
+			$hostView.show();
+			$controllerView.hide();
 
 			socket.on('controllerInstruction',function(orientation){
 				if(controllerAvailable){

@@ -19,6 +19,10 @@
 		opacity: 1;
 		width: 10em;
 
+		.toggler{
+			opacity: 1;
+		}
+
 		.toggler:after{
 			content:'<';
 		}
@@ -30,6 +34,14 @@
 		right: -$sizeToggle;
 		height:$sizeToggle;
 		width:$sizeToggle;
+
+		opacity: .7;
+
+		cursor: pointer;
+
+		&:hover{
+			opacity: 1;
+		}
 
 		&:after{
 			content:'>';
@@ -52,7 +64,7 @@
 		display: block;
 		color:white;
 		text-decoration: none;
-		padding: $sizeToggle/2 .4em;
+		padding: $sizeToggle/3 .4em;
 
 
 		&:hover{
