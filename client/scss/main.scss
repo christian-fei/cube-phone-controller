@@ -1,10 +1,22 @@
 @import 'compass';
 @import 'vars';
 @import 'general';
+
+/*landing page/screen*/
 @import 'splash';
-@import 'cube';
+
+/*various dialogs, like host and controller room modal window*/
 @import 'dialogs';
-@import 'notifications';
+
+/*super basic but slick menu*/
 @import 'menu';
+
+/*hints for the user*/
 @import 'info';
-@import '_compass';
+
+/*controller views*/
+@import 'cube-view';
+@import 'compass-view';
+
+/*home-made notifications*/
+@import 'notifications';

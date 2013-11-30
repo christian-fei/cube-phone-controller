@@ -5,6 +5,7 @@ var http = require('http').createServer( httpHandler ),
 	io = require('socket.io').listen( http, { log: false } ),
 	fs = require('fs'),
 	mime = require('mime'),
+	url = require('url'),
 	httpHost = '37.139.20.20', //my static IP in my home network
 	httpPort = 3000;
 
@@ -21,20 +22,17 @@ http.listen( process.env.HTTP_PORT || httpPort, process.env.HTTP_HOST || httpHos
 	H   H   T     T   P        SSSSS EEEEE R   R   V   EEEEE R   R
 */
 function httpHandler(req,res){
-	if( req.url === '/' ){
+	var requrl = url.parse(req.url).pathname;
+	console.log( requrl );
+	if( requrl === '/' ){
 		res.writeHead(200, {
 			'Content-Type': 'text/html'
 		});
 		res.write( fs.readFileSync( __dirname + '/client/index.html' , 'utf8') );
-	}else if(req.url === '/about' || req.url === '/source'){
-		res.writeHead(200, {
-			'Content-Type': 'text/html'
-		});
-		res.write( fs.readFileSync( __dirname + '/client' + req.url + '.html' , 'utf8') );
-	}else{
+	}else {
 		var f;
 		try{
-			f = fs.readFileSync( __dirname + req.url , 'utf8');
+			f = fs.readFileSync( __dirname + '/client/' + requrl , 'utf8');
 		}catch(e){
 		}
 
@@ -42,7 +40,7 @@ function httpHandler(req,res){
 			/*
 			serve with the right mime type
 			*/
-			var type = mime.lookup(req.url.substring(1));
+			var type = mime.lookup( __dirname + '/client/' + requrl.substring(1));
 			res.writeHead(200, {
 				"Content-Type": type
 			});
