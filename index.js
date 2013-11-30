@@ -5,7 +5,7 @@ var http = require('http').createServer( httpHandler ),
 	io = require('socket.io').listen( http, { log: false } ),
 	fs = require('fs'),
 	mime = require('mime'),
-	httpHost = '192.168.0.106', //my static IP in my home network
+	httpHost = '37.139.20.20', //my static IP in my home network
 	httpPort = 3000;
 
 var rooms = {};
