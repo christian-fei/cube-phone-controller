@@ -1,0 +1,72 @@
+$colorBGMain: #222;
+$colorMain: white;
+
+//px (instead of em) because I set font-size to 0 when showing the speech bubble to hide the text of the label
+$size:40px;
+
+
+//lazy reset
+*,*:before,*:after{margin: 0;padding: 0;box-sizing:border-box;}
+
+.info-wrapper{
+  position: fixed;
+  top: 2em;
+  left:50%;
+
+  max-width: 25em;
+  width: 100%;
+  margin: 1em auto 1em -12.5em;
+  //to center the label
+  text-align: center;
+
+  z-index: 2000;
+}
+//style the content by defaul, but set the opacity to 0 and don't let the user select shit
+.content{
+  opacity: 0;
+  background-color: $colorBGMain;
+  color: $colorMain;
+  padding: 1em;
+  
+  border-radius: .5em;
+  
+  transition-duration: .1s;
+  transition-timing-function: ease;
+  transition-property: opacity;
+  
+  user-select:none;
+}
+
+//hide the input, serves only as a toggle.
+#toggle-info{display: none;}
+//show the content
+#toggle-info:checked ~ .content{
+  opacity: 1;
+  user-select: initial;
+}
+//transform the toggle into the corner of a speech bubble
+#toggle-info:checked ~ [for="toggle-info"]{
+  border-radius:0;
+  height: 0;
+  width: 0;
+  //to hide the content of the label
+  line-height: 0;
+  font-size: 0;
+  
+  background-color: transparent;
+  border-bottom: $size*2/3 solid $colorBGMain;
+  border-left: $size/2 solid transparent;
+  border-right: $size/2 solid transparent;
+}
+[for="toggle-info"]{
+  display: inline-block;
+  background-color: $colorBGMain;
+  color: $colorMain;  color: white;
+  width:$size;
+  height: $size;
+  border-radius:50%;
+  //center the text of the label
+  line-height: $size;
+  
+  user-select: none;
+}

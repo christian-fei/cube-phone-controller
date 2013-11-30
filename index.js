@@ -64,7 +64,7 @@ function httpHandler(req,res){
 */
 io.sockets.on('connection', function (socket) {
 
-	socket.on('canIHazPassphrasePlz?', function(){
+	socket.on('requestPassphrase', function(){
 		var passphrase = getNewPassphrase();
 		socket.join( passphrase );
 		socket.store.data = {

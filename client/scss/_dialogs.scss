@@ -2,8 +2,6 @@
 	color:white;
 }
 .passphrase-dialog-wrapper{
-	@extend %splash-wrapper;
-
 	background-color: #0087FF;
 	color:white;
 }
@@ -15,7 +13,6 @@
 	background-color: $yellow;
 }
 	.room-input-dialog, .passphrase-dialog{
-		$sizeDialog: 20em;
 		position: absolute;
 		top: 50%;
 		left: 50%;

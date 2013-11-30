@@ -1,4 +1,4 @@
-var HOST = '37.139.20.20',
+var HOST = '192.168.0.106',
 	socket = io.connect('http://' + HOST);
 
 
@@ -28,6 +28,13 @@ $(document).ready(function() {
 			console.log( $(this).data('choice') );
 			resetListeners();
 			e.preventDefault();
+
+			//remove old modals, coz below I create them again
+			if( $('.room-input-dialog-wrapper') )
+				$('.room-input-dialog-wrapper').remove();
+			if( $('.passphrase-dialog-wrapper') )
+				$('.passphrase-dialog-wrapper').remove();
+
 			if( $(this).data('choice') === 'controller' ){
 				setupController();
 			}else{
@@ -42,14 +49,12 @@ $(document).ready(function() {
 
 
 	function resetListeners(){
-		console.log( 'removing listeners' );
 		window.removeEventListener('deviceorientation',handleDeviceOrientation);
 		socket.removeListener('controllerConnected');
 		socket.removeListener('controllerLeft');
 		socket.removeListener('passphraseFreshFromTheOven');
 		socket.removeListener('controllerInstruction');
 		socket.removeListener('responseAttemptControllerRoom');
-
 	}
 
 
@@ -170,7 +175,7 @@ $(document).ready(function() {
 		var dialog = $( $('#passphrase-dialog-template').html() );
 		$('body').append(dialog);
 
-		socket.emit('canIHazPassphrasePlz?');
+		socket.emit('requestPassphrase');
 		socket.on('passphraseFreshFromTheOven', function(passphrase){
 			room = passphrase;
 			dialog.find('.room-input').val(passphrase);
