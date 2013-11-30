@@ -36,6 +36,10 @@ $(document).ready(function() {
 		}
 	});
 
+	$('.toggler').on('click',function(){
+		$('.menu').toggleClass('show');
+	});
+
 
 	function resetListeners(){
 		console.log( 'removing listeners' );

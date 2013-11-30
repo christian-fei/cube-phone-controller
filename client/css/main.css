@@ -410,35 +410,42 @@ body {
   transition-delay: .05s;
 }
 
-.menu:hover {
+.menu.show {
   left: 0;
   opacity: 1;
   width: 10em;
 }
 
-.menu:hover:after {
+.menu.show .toggler:after {
   content: '<';
 }
 
-.menu:after {
+.menu .toggler {
   position: absolute;
   top: 0;
-  right: -2.5em;
-  height: 2.5em;
-  width: 2.5em;
-  content: '>';
-  font-size: 1.5em;
-  text-align: center;
-  line-height: 2.5em;
+  right: -3.5em;
+  height: 3.5em;
+  width: 3.5em;
   background: #222;
   color: white;
+}
+
+.menu .toggler:after {
+  content: '>';
+  text-align: center;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 1.5em;
+  text-align: center;
+  line-height: 2.33333em;
 }
 
 .menu a {
   display: block;
   color: white;
   text-decoration: none;
-  padding: 1.25em 0.4em;
+  padding: 1.75em 0.4em;
 }
 
 .menu a:hover {
