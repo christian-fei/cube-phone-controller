@@ -61,6 +61,14 @@ $(document).ready(function() {
 				$('.splash-screen').remove();
 			$('.menu').removeClass('show');
 
+			/*
+			essentially restore the UI
+			*/
+			cubeEnabled = true;
+			compassEnabled = false;
+			$('#option-cube').prop('checked',true);
+			$('#option-compass').prop('checked',false);
+
 			resetListeners();
 
 			//remove old modals, coz below I create them again
