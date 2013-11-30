@@ -10,7 +10,7 @@ var orientationState = {
 variables for the controller
 */
 var lastUpdate = Date.now(),
-	minInterval = 2,
+	minInterval = 15,
 	canHandleOrientation;
 
 /*
@@ -23,9 +23,10 @@ $(document).ready(function() {
 	/*
 		inside here to hide them from the console
 	*/
-	var HOST = '37.139.20.20',
+	var HOST = '192.168.0.106',
 		socket = io.connect('http://' + HOST);
 	
+
 
 
 
@@ -37,6 +38,7 @@ $(document).ready(function() {
 		U   U II         S   T   U   U F     F
 		UUUUU II     SSSSS   T   UUUUU F     F
 	*/
+
 	var $cube = $('.cube'),
 		$hostView = $('.host-specific-view'),
 		$controllerView = $('.controller-specific-view'),
@@ -44,9 +46,10 @@ $(document).ready(function() {
 		$cubeWrapper = $('.cube-wrapper'),
 		$compassWrapper = $('.compass-wrapper'),
 		$compassPointer = $('.compass-pointer'),
-		$debugAxisX = $('.debug-axis[data-axis="x"'),
-		$debugAxisY = $('.debug-axis[data-axis="y"'),
-		$debugAxisZ = $('.debug-axis[data-axis="z"');
+		$debugAxisX = $('.debug-axis[data-axis="x"]'),
+		$debugAxisY = $('.debug-axis[data-axis="y"]'),
+		$debugAxisZ = $('.debug-axis[data-axis="z"]');
+
 
 	$('.choice, .menu .item a').on('click',function(e){
 		var choice;
@@ -314,8 +317,11 @@ $(document).ready(function() {
 			$controllerView.hide();
 
 			socket.on('controllerInstruction',function(orientation){
-				if(cubeEnabled)
-					handleCube( orientation.gamma , -orientation.beta );
+				if(cubeEnabled){
+					if( changedEnough(orientation.beta,orientationState.beta,5) || changedEnough(orientation.gamma,orientationState.gamma,5) ){
+						handleCube( orientation.gamma , -orientation.beta );
+					}
+				}
 				if(compassEnabled)
 					handleCompass( orientation.alpha );
 
@@ -364,8 +370,14 @@ $(document).ready(function() {
 			callback();
 		});
 	}
-	
+	function changedEnough(a,b,amount){
+		if( Math.abs(a) > Math.abs(b) + amount || Math.abs(a) < Math.abs(b) - amount )
+			return true;
+		return false;
+	}
 	function handleCube(x,y){
+		x = Math.floor(x);
+		y = Math.floor(y);
 		$cube.css('transform', 'rotateY('+x+'deg) rotateX('+y+'deg)');
 	}
 	function handleCompass(z){
@@ -377,7 +389,7 @@ $(document).ready(function() {
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 				var locationString = position.coords.latitude + ',' + position.coords.longitude;
-				$compassWrapper.find('.map').css('background-image','url("http://maps.googleapis.com/maps/api/staticmap?zoom=15&sensor=true&size=350x350&markers=' + locationString + '")');
+				$compassWrapper.find('.map').css('background-image','url("http://maps.googleapis.com/maps/api/staticmap?zoom=15&sensor=true&size=800x800&markers=' + locationString + '")');
 			}, function() {
 				alert('problem with geoposition you');
 			});

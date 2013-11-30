@@ -64,6 +64,7 @@
 		<div class="instance"></div>
 
 		<div class="splash-screen">
+			<!--
 			<h1>
 				<span>c</span>
 				<span>u</span>
@@ -81,19 +82,16 @@
 				<span>e</span>
 				<span>r</span>
 			</h1>
+			-->
 			<div class="choices">
-				<div class="choice" data-choice="host">HOST</div>
-				<div class="choice" data-choice="controller">CONTROLLER</div>
+				<a href="#" class="choice" data-choice="host">HOST</a>
+				<a href="#" class="choice" data-choice="controller">CONTROLLER</a>
 			</div>
 		</div>
-
 
 		<div class="host-specific-view">
 			<h1 class="view-description">host</h1>
 
-			<div class="debug-axis" data-axis="x"></div>
-			<div class="debug-axis" data-axis="y"></div>
-			<div class="debug-axis" data-axis="z"></div>
 
 			<div class='cube-wrapper'>
 				<div class='cube'>
@@ -135,13 +133,14 @@
 					<div class="compass-pointer"></div>
 				</div>
 			</div>
+			
+			<div class="debug-axis" data-axis="x"></div>
+			<div class="debug-axis" data-axis="y"></div>
+			<div class="debug-axis" data-axis="z"></div>
 		</div>
 
 		<div class="controller-specific-view">
 			<h1 class="view-description">controller</h1>
-			<div class="debug-axis" data-axis="x"></div>
-			<div class="debug-axis" data-axis="y"></div>
-			<div class="debug-axis" data-axis="z"></div>
 
 			<div class="controller-options">
 				<div class="option">
@@ -153,6 +152,9 @@
 					<input type="checkbox" id="option-compass" data-option="compass">
 				</div>
 			</div>
+			<div class="debug-axis" data-axis="x"></div>
+			<div class="debug-axis" data-axis="y"></div>
+			<div class="debug-axis" data-axis="z"></div>
 		</div>
 	</body>
 </html>
