@@ -23,7 +23,7 @@ $(document).ready(function() {
 	/*
 		inside here to hide them from the console
 	*/
-	var HOST = '192.168.0.106',
+	var HOST = '37.139.20.20',
 		socket = io.connect('http://' + HOST);
 	
 
@@ -44,7 +44,6 @@ $(document).ready(function() {
 		$cubeWrapper = $('.cube-wrapper'),
 		$compassWrapper = $('.compass-wrapper'),
 		$compassPointer = $('.compass-pointer'),
-		$interval = $('.interval'),
 		$debugAxisX = $('.debug-axis[data-axis="x"'),
 		$debugAxisY = $('.debug-axis[data-axis="y"'),
 		$debugAxisZ = $('.debug-axis[data-axis="z"');
@@ -82,15 +81,6 @@ $(document).ready(function() {
 	$('.toggler').on('click',function(){
 		$('.menu').toggleClass('show');
 	});
-
-	$interval.on('change',function(e){
-		var tmpval = e.target.value;
-		if( tmpval >= 0 && tmpval < 500){
-			minInterval = tmpval;
-		}
-	});
-
-
 	/*
 	options used to toggle the view on the host
 	*/
@@ -99,8 +89,6 @@ $(document).ready(function() {
 		$('.controller-options input[type="checkbox"]').prop('checked',false);
 		//restore check, because of previous operation
 		$(this).prop('checked',true);
-
-		console.log( $(this).data('option') );
 
 		socket.emit('controllerOption', $(this).data('option') );
 	});
@@ -280,11 +268,13 @@ $(document).ready(function() {
 				*/
 				socket.emit('attemptControllerRoom', roomAttempt);
 				
-				socket.on('responseAttemptControllerRoom',function(successful){
-					if(successful){
+				socket.on('responseAttemptControllerRoom',function(successful, controllerAlreadyConnected){
+					if(successful && !controllerAlreadyConnected){
 						room = roomAttempt.toUpperCase();
 						$('.room-input-dialog-wrapper').remove();
 						callback();
+					}else if(controllerAlreadyConnected){
+						notify('there is already someone controlling this instance');
 					}else{
 						notify('it seems like you mistyped the passphrase. try again.');
 					}
@@ -379,7 +369,7 @@ $(document).ready(function() {
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 				var locationString = position.coords.latitude + ',' + position.coords.longitude;
-				$compassWrapper.find('.map').css('background-image','url("http://maps.googleapis.com/maps/api/staticmap?zoom=15&sensor=true&size=350x350&markers=color:red%7C' + locationString + '")');
+				$compassWrapper.find('.map').css('background-image','url("http://maps.googleapis.com/maps/api/staticmap?zoom=15&sensor=true&size=350x350&markers=' + locationString + '")');
 			}, function() {
 				alert('problem with geoposition you');
 			});

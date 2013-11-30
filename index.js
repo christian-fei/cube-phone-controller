@@ -78,7 +78,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('attemptControllerRoom',function(roomAttempt){
 		if(roomAttempt)
 			roomAttempt = roomAttempt.toUpperCase();
-		var exists = rooms[roomAttempt] ? true : false;
+		var exists = rooms[roomAttempt] && io.sockets.manager.rooms['/'+roomAttempt].length < 2 ? true : false;
 
 		if( exists ){
 			console.log( 'controller joined room ' + roomAttempt );
@@ -90,7 +90,10 @@ io.sockets.on('connection', function (socket) {
 			socket.broadcast.to(roomAttempt).emit('controllerConnected');
 		}
 
-		socket.emit('responseAttemptControllerRoom', exists );
+		if( io.sockets.manager.rooms['/'+roomAttempt] >= 2 )
+			socket.emit('responseAttemptControllerRoom', exists, true );
+		else
+			socket.emit('responseAttemptControllerRoom', exists, false );			
 	});
 
 	socket.on('controllerChanged', function(orientation){
