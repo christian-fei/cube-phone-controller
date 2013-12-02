@@ -23,7 +23,7 @@ $(document).ready(function() {
 	/*
 		inside here to hide them from the console
 	*/
-	var HOST = '192.168.0.106',
+	var HOST = '37.139.20.20',
 		socket = io.connect('http://' + HOST);
 
 	/*
