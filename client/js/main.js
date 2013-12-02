@@ -381,6 +381,7 @@ $(document).ready(function() {
 		var dialog = $( $('#passphrase-dialog-template').html() );
 		$('body').append(dialog);
 
+		notify('requesting new instance');
 		socket.emit('requestNewInstance');
 		socket.on('instanceCreated', function(passphrase){
 			room = passphrase;
