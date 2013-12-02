@@ -133,8 +133,7 @@ $(document).ready(function() {
 			$('.room-input-dialog-wrapper').remove();
 		if( $('.passphrase-dialog-wrapper') )
 			$('.passphrase-dialog-wrapper').remove();
-
-
+/**/
 		if( participant === 'controller' ){
 			setupController();
 		}else{
